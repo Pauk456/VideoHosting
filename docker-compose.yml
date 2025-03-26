@@ -1,0 +1,16 @@
+services:
+  videoservice:
+    image: videoservice
+    build:
+      context: ./videoservice
+    ports:
+      - "5001:5001"
+
+  view:
+    image: view
+    build:
+      context: ./view
+    ports:
+      - "5000:5000"
+    depends_on:
+      - videoservice
