@@ -7,7 +7,37 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\css\default.css" />
+    <Content Remove="wwwroot\css\header.css" />
+    <Content Remove="wwwroot\css\main.css" />
+    <Content Remove="wwwroot\css\video.css" />
+    <Content Remove="wwwroot\fonts\Jaro-Regular.woff2" />
+    <Content Remove="wwwroot\fonts\RobotoMono-Regular.woff2" />
+    <Content Remove="wwwroot\images\avatar.png" />
+    <Content Remove="wwwroot\images\avatar256.png" />
+    <Content Remove="wwwroot\images\monolog.png" />
+    <Content Remove="wwwroot\images\search_button.png" />
+    <Content Remove="wwwroot\js\script.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Models\" />
+    <Folder Include="Views\front\" />
+    <Folder Include="Views\Shared\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\css\default.css" />
+    <None Include="wwwroot\css\header.css" />
+    <None Include="wwwroot\css\main.css" />
+    <None Include="wwwroot\css\video.css" />
+    <None Include="wwwroot\fonts\Jaro-Regular.woff2" />
+    <None Include="wwwroot\fonts\RobotoMono-Regular.woff2" />
+    <None Include="wwwroot\images\avatar.png" />
+    <None Include="wwwroot\images\avatar256.png" />
+    <None Include="wwwroot\images\monolog.png" />
+    <None Include="wwwroot\images\search_button.png" />
+    <None Include="wwwroot\js\script.js" />
   </ItemGroup>
 
 </Project>

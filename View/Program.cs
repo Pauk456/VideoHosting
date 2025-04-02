@@ -12,8 +12,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
 });
 
-//app.UseAuthorization();
-//app.UseStaticFiles();
+app.UseStaticFiles(); // для подключения wwwroot
 
 app.MapControllerRoute(
     name: "default",

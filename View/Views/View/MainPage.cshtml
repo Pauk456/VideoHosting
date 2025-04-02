@@ -1,4 +1,47 @@
-﻿@{
-    ViewData["Title"] = "Главная";
-}
-<h1>@ViewData["Title"]</h1>
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Jaro&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet"> -->
+    <link href="~/css/default.css" rel="stylesheet" />
+    <link href="~/css/header.css" rel="stylesheet" />
+    <link href="~/css/main.css" rel="stylesheet" />
+</head>
+<body>
+    <header>
+        <a class="logo" href="/">
+            AniWorld
+        </a>
+        <button class="header-search-button">Поиск</button>
+
+        <div class="header-auth">
+            <ul class="header-auth-list">
+                <li class="header-auth-item">
+                    <a class="header-auth-link" href="/">Вход</a>
+                </li>
+                <li class="header-auth-item">
+                    <a class="header-auth-link" href="/">Регистрация</a>
+                </li>
+
+            </ul>
+        </div>
+    </header>
+    <main>
+        <div class="preview-container">
+            <p class="popular_title">Популярно сейчас</p>
+            <button class="preview" onclick="window.location.href='/html/video.html';"></button>
+        </div>
+        <div class="news-container">
+            <p class="news-title">Новые серии</p>
+        </div>
+    </main>
+    <!-- <footer>
+        <span class="contacts">https://github.com/VimatoSan</span>
+    </footer> -->
+    <script src="js/script.js"></script>
+
+</body>
+</html>
