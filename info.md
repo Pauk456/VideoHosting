@@ -4,3 +4,5 @@
 5003 - searchService
 5004 - gatewayservice
 5005 - autorizationservice
+5006 - TitleService
+5007 - TitleRecommendationService
