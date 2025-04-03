@@ -24,3 +24,7 @@ services:
       context: ./videoservice
     ports:
       - "5001:5001"
+    depends_on:
+    - db  
+volumes:
+    pg_data:
