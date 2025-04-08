@@ -1,11 +1,4 @@
 services:
-  videoservice:
-    image: videoservice
-    build:
-      context: ./videoservice
-    ports:
-      - "5001:5001"
-
   view:
     image: view
     build:
@@ -14,3 +7,24 @@ services:
       - "5000:5000"
     depends_on:
       - videoservice
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 4334
+      POSTGRES_DB: AnimeVideo
+    volumes:
+      - ./AnimeDb.sql:/docker-entrypoint-initdb.d/00-backup.sql
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  videoservice:
+    image: videoservice
+    build:
+      context: ./videoservice
+    ports:
+      - "5001:5001"
+    depends_on:
+    - db  
+volumes:
+    pg_data:
