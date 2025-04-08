@@ -1,11 +1,38 @@
+
+//ServerInteraction будет отвечать за взаимодействие с сервером.
+//То есть для подгрузки картинок и видео с сервера может ещё для какой-нибудь инфы с сервера
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 app.Urls.Add("http://localhost:4999");
 
+app.MapGet("/get-img", async (HttpContext context, string filePath) =>
+{
+    var basePath = @"D:\Anime";
+    var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath.Substring(1)));
+
+    if (!fullPath.StartsWith(basePath))
+    {
+        context.Response.StatusCode = 403;
+        await context.Response.WriteAsync("Access denied");
+        return;
+    }
+    if (!File.Exists(fullPath))
+    {
+        context.Response.StatusCode = 404;
+        await context.Response.WriteAsync("File not found");
+        return;
+    }
+
+    await using var fullFileStream = File.OpenRead(fullPath);
+    await fullFileStream.CopyToAsync(context.Response.Body);
+
+});
+
+//вынесу в контроллер если не будет лень
 app.MapGet("/stream-video", async (HttpContext context, string filePath) =>
 {
-    var basePath = @"D:\fileZilla";
+    var basePath = @"D:\Anime";
     var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath.Substring(1)));
 
     if (!fullPath.StartsWith(basePath))
