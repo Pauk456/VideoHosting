@@ -1,4 +1,5 @@
 .video-player {
+    /* overflow: hidden;  */
     width: 1050px;
     height: 600px;
 }
