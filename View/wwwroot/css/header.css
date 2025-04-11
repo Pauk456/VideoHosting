@@ -11,6 +11,16 @@
     font-weight: 400;
 }
 
+:root {
+  --global-padding: min(150px, 8vw);
+  --block-color: #565963;
+  /* --block-color: #565963; */
+
+  --background-color:#EED5F5;
+  --header-color: #807B8B;
+  --link-color: #FF6C47;
+  --block-between-margin: 18px;
+}
 
 body {
     font-family: RobotoMono;
@@ -20,20 +30,55 @@ body {
     0.25px -0.25px 0 black,
     -0.25px 0.25px 0 black,
     0.25px 0.25px 0 black;
-    padding-inline: min(70px, 6vw);
+    
+    /* padding-inline: min(80px, 6vw); */
     background-color: #EED5F5;
 }
 
 
+.title {
+  display: block; 
+  margin-left: 15px;
+}
+
 header {
+  width: 100%;
+    height: 50px;
+    box-sizing: border-box;  /* Включаем padding в ширину */
     display: flex;
+    align-items: center;
+    /* display: flex;
+    align-items: center;
+    justify-content: space-between; */
+    background-color: #807B8B;
+    border-bottom: 4px solid var(--link-color);
+    padding-inline: var(--global-padding);
+}
+
+.underline {
+  height: 4px;
+  width: 100%;
+  background-color: var(--link-color);
+}
+
+
+.container {
+  width: 100%;
+  box-sizing: border-box; 
+  max-width: 1200px; 
+  margin-inline: auto;
+}
+
+.header-container {
+  display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
+
 .logo {
     font-family:  "Jaro";
-    font-size: min(32px, 5.25vw);
+    font-size: min(30px, 5vw);
 
 }
 
@@ -56,63 +101,56 @@ a:hover {
     column-gap: min(20px, 2.5vw);
   }
   
+.search-container {
+  margin-left: auto;
+  margin-right: 35px;
+    display: flex;
+    align-items: center;
+}
 
 .header-search-button {
-    text-shadow: 
-    -0.25px -0.25px 0 black,
-    0.25px -0.25px 0 black,
-    -0.25px 0.25px 0 black,
-    0.25px 0.25px 0 black;
-    background-color: #EED5F5;
-    border: 0;
-    margin-left: auto; 
-    margin-right: min(25px, 3.25vw);
+  background-image: url("../images/search_button.png");
+  background-size: cover; /* Масштабирование */
+  display: block; /* Делаем элемент видимым */
+
+
+  width: 36px;
+  height: 36px;
   }
   
-  .header-search-button:hover {
-    background-color: black; /* Цвет текста становится цветом фона */
-    color: #EED5F5; /* Цвет фона становится цветом текста */
+  /* .header-search-button:hover {
+    background-color: black;
+    color: #EED5F5; 
+  } */
+
+  .header-auth-button {
+    align-items: center;
   }
-  
-  .header-auth-link {
+
+  .auth-button-icon {
+    background-image: url("../images/avatar256.png");
+    background-size: cover; /* Масштабирование */
+    /* filter: grayscale(100%); */
+    margin-right: 10px; /* Отступ между иконкой и текстом */
+
+    width: 39px;
+    height: 39px;
+  }
+
+
+  /* .header-auth-link {
     display: inline-flex;
     align-items: center;
     height: 70px;
     letter-spacing: 1.2;
-  }
+  } */
 
 @media(max-width: 470px) {
   header {
     flex-wrap: wrap;
-    margin-top: 10px;
   }
 
   .header-auth-list {
     display: none;
-  }
-
-  .header-auth {
-    background-image: url("../images/avatar256.png");
-    width: 32px;  /* Размер иконки */
-    height: 32px;
-
-    display: block; /* Делаем элемент видимым */
-    background-size: cover; /* Масштабирование */
-    /* background-position: center; Центрирование */
-  }
-
-  .header-search-button {
-    font-size: 0px;
-  }
-
-  .header-search-button::after {
-    content: "";
-    background-image: url("../images/search_button.png");
-    background-size: cover; /* Масштабирование */
-    display: block; /* Делаем псевдоэлемент блочным */
-
-    width: 32px;  /* Размер иконки */
-    height: 32px;
-
-  }
+  }  
 }

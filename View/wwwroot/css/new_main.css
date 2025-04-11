@@ -1,0 +1,194 @@
+main {
+    /* margin-top: 90px; */
+    padding-inline: var(--global-padding);
+    flex-wrap: wrap;
+    display: flex;
+    /* align-items: center; */
+    justify-content: space-between;
+  }
+
+
+.poster-slider-container {
+    width: 100%;
+    margin-top: var( --block-between-margin);
+    background-color: var(--block-color);
+    border-radius: 10px;
+    height: auto; 
+    overflow: hidden;
+    padding-bottom: 3px;
+    padding-inline: 20px;
+}
+
+.poster-list {
+    margin-top: 5px;
+    display: grid; /* Размещаем элементы в строку */
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    width: 100%;
+    overflow: hidden;
+    gap: 20px; 
+}
+
+.anime-link {
+    overflow: hidden;            /* Скрывает лишний текст */
+    text-overflow: ellipsis;     /* Заменяет обрезанный текст на три точки */
+    white-space: nowrap;    
+    text-shadow: 1px 1px 2px #000;
+
+    color: var(--link-color);
+}
+
+.anime-description-container {
+    padding-left: 15px;
+}
+
+
+.translated-name {
+    text-shadow: none;
+    font-size: medium;
+}
+
+.search-input {
+    width: 11vw;
+    margin-right: 15px;
+    display: none;
+}
+
+.poster-img {    
+    border-radius: 5px;
+    /* height: 224px; */
+    width: 100%;
+}
+
+.poster-elem {
+    width: 100%;
+}
+
+
+.poster-slider-title {
+    padding-top: 3px;
+    color: #F4F4F4;
+    text-shadow: none;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); /* Легкая тень для контраста */
+}
+
+.actual-container {
+    margin-top: var( --block-between-margin);
+    height: 315px;
+    background-color: var(--block-color);
+    width: 100%;
+    border-radius: 10px;
+    padding-inline: 20px;
+
+}
+
+.actual-grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(min(256px, 45%), 1fr));
+    /* grid-template-columns: repeat(auto-fill, minmax(256px, 1fr)); */
+    padding-top: 7px;
+    grid-template-rows: 94px, 94px;
+    column-gap: 15px;
+    row-gap: 70px;
+    display: grid;
+}
+
+.description {
+    white-space: normal;
+    overflow-wrap: break-word;
+    line-height: 1.2;
+    /* white-space: wrap; */
+    /* color: var(--link-color); */
+    margin-left: 10px;
+    font-size: small;
+}
+
+.anime-elem {
+    display: flex;
+    overflow: hidden;
+}
+
+.type {
+    margin-top: 10px;
+}
+
+.type-text {
+    font-size: small;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.small-img {
+    object-fit: cover;
+    height: 94px;
+    width: 94px;
+    flex-shrink: 0;
+}
+
+.other-anime-container {
+    display: flex;
+    margin-top: var( --block-between-margin);
+}
+
+.big-anime-list {
+    border-radius: 10px;
+    flex-grow: 4;
+    background-color: var(--block-color);
+    height: 1000px;
+    padding-left: 20px;
+    padding-top: 15px;
+}
+
+.list-elem-container {
+    display: flex;
+}
+
+.list-poster {
+    width: 150px;
+}
+
+.ongoings {
+    text-align: center;
+    padding-top: 5px;
+    border-radius: 10px;
+    flex-grow: 1;
+    height: 600px;
+    margin-left: var( --block-between-margin);
+    background-color: var(--block-color);
+}
+
+
+
+@media(max-width: 660px) {
+    .small-img {
+        width: 15vw;
+        height: 15vw;
+    }
+    .actual-grid-container {
+        grid-template-rows: auto, auto;
+    }
+    .actual-container {
+        height: auto;
+        padding-bottom: 15px;
+
+    }
+    .description {
+        flex-wrap: wrap;
+    }
+
+    .anime-elem {
+        height: auto;
+    }
+}
+
+
+@media(max-width: 470px) {
+    .poster-list {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 14px; 
+    }
+    .poster-slider-container {
+        padding-inline: 14px;
+    }
+    .actual-container {
+        padding-inline: 14px;
+    }
+}
