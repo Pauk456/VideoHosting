@@ -1,0 +1,60 @@
+body {
+    background-color: #F4E1C1; /* Песочно-персиковый */
+    color: #2D2D2D; /* Тёмно-серый */
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #A24D37; /* Терракотовый */
+    padding: 20px;
+    text-align: center;
+    border-bottom: 4px solid #4E342E; /* Тёмный контур */
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: #FAF3E0; /* Слоновая кость */
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.container {
+    width: 80%;
+    max-width: 1200px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+.card {
+    background: #FAF3E0; /* Светлый фон для блоков */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    margin-bottom: 20px;
+}
+
+button {
+    background: #A24D37; /* Терракотовый */
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: #8B3B29; /* Более глубокий оттенок терракоты */
+    transform: scale(1.05);
+}
+
+footer {
+    background: #4E342E; /* Тёмный шоколад */
+    color: #FAF3E0;
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+}
