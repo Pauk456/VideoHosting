@@ -6,6 +6,13 @@
 
 
 .video-container {
-    margin-left: 120px;
     margin-top: 30px;
+}
+
+body {
+    background-color: var(--block-color);
+}
+
+.option-list {
+    color: white;
 }
