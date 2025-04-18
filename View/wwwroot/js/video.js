@@ -10,13 +10,18 @@ window.addEventListener("DOMContentLoaded", () => {
     //   window.location.href = "../index.html";
     //   return;
     // }
+
+    // fetch(`http://localhost:5006/api/title/getSeasonsAndEpisodes/${id}`)
+
     fetch(`http://localhost:5006/api/title/getSeasonsAndEpisodes/${id}`)
     .then(response => response.json())
     .then(data => {
+      console.log(data);
       // Заполняем список сезонов
       data.forEach(season => {
+        console.log(season);
         const option = document.createElement("option");
-        option.value = season.seasonNumber;
+        // option.value = season.seasonNumber;
         option.textContent = season.seasonNumber;
         seasonSelect.appendChild(option);
       });
@@ -26,6 +31,11 @@ window.addEventListener("DOMContentLoaded", () => {
         const selectedSeason = data.find(season => season.seasonNumber == seasonSelect.value);
         episodeSelect.innerHTML = "";
 
+        const defaultOption = document.createElement("option");
+        defaultOption.textContent = "Серия";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        episodeSelect.appendChild(defaultOption);
         if (selectedSeason) {
           selectedSeason.episodes.forEach(episode => {
             const option = document.createElement("option");
@@ -42,7 +52,7 @@ window.addEventListener("DOMContentLoaded", () => {
       // Обработка смены серии
       episodeSelect.addEventListener("change", () => {
         const episodeId = episodeSelect.value;
-
+        console.log(episodeId);
         // Подставляем ID в ссылку на видео
         const videoUrl = `http://localhost:5001/api/video/${episodeId}`;
         const videoPlayer = document.getElementsByClassName("video-player")[0];

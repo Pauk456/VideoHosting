@@ -83,13 +83,13 @@ body {
     0.25px 0.25px 0 black; */
     
     /* padding-inline: min(80px, 6vw); */
-    background-image: url(../images/phoenix.jpg);
+    /* background-image: url(../images/phoenix.jpg); */
     background-size: cover; /* масштабировать по размеру экрана */
     background-position: center; /* выровнять по центру */
     background-repeat: no-repeat; /* не повторять */
     background-attachment: fixed; /* Закрепляет фон */
 
-    /* background-color: var(--background-color); */
+    background-color: var(--background-color);
 }
 
 
@@ -99,6 +99,11 @@ body {
 }
 
 header {
+  /* position: fixed;
+top: 0;
+left: 0;
+  z-index: 100%;  */
+
   width: 100%;
     height: 56px;
     box-sizing: border-box;  /* Включаем padding в ширину */
