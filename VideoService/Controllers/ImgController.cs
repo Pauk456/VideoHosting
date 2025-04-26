@@ -4,6 +4,7 @@ namespace VideoService.Controllers;
 
 using FluentFTP;
 using FluentFTP.Exceptions;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.EntityFrameworkCore;
 using Renci.SshNet;
 using System;
@@ -15,6 +16,7 @@ using VideoService.DbModels;
 using VideoService.Models;
 
 [ApiController]
+[EnableCors("AllowAll")] // Явно применяем политику CORS
 [Route("api/img")]
 public class ImgController : ControllerBase
 {

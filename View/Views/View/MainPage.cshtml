@@ -9,7 +9,7 @@
     <link href="~/css/default.css" rel="stylesheet" />
     <link href="~/css/header.css" rel="stylesheet" />
 
-    <link href="~/css/new_main.css" rel="stylesheet" />
+    <link href="~/css/main.css" rel="stylesheet" />
 </head>
 <body>
     <header>
@@ -29,169 +29,207 @@
         </div>
     </header>
     <main>
-        <!-- Число элементов и их размеры должны меняться от размера  -->
-        <div class="poster-slider-container container">
-            <p class="poster-slider-title">Рекомендованное</p>
-            <!-- Сделать Poster-list grid-контейнером у которого число элементов в строке будет менятся отширины страницы, но не менее 2  -->
+        <div class="recommends-container slider container">
+            <p class="container-title">Рекомендованное</p>
 
-            <ul class="poster-list">
-                <li class="poster-elem" id="poster-1">
-                    <a href="~/html/video.html">
-                        <img class="poster-img" src="~/images/monolog-poster.jpg" alt="">
-                        <p class="anime-link">Монолог Фармацевта</p>
+            <ul class="recommend-anime-list">
+                <!-- <li class="recommend-anime-elem" id="poster-1">
+                    <a href="./html/video.html">
+                        <img class="recommend-poster-img" src="./images/monolog-poster.jpg" alt="">
+                        <p class="recommend-anime-link anime-link">Монолог Фармацевта</p>
                     </a>
                 </li>
-                <li class="poster-elem" id="poster-1">
-                    <a href="~/html/video.html">
-                        <img class="poster-img" src="~/images/hanako.jpg" alt="">
-                        <p class="anime-link">Туалетный мальчик Ханако</p>
+                <li class="recommend-anime-elem" id="poster-1">
+                    <a href="./html/video.html">
+                        <img class="recommend-poster-img" src="./images/hanako.jpg" alt="">
+                        <p class="recommend-anime-link anime-link">Туалетный мальчик Ханако</p>
                     </a>
                 </li>
-                <li class="poster-elem" id="poster-1">
-                    <a href="~/html/video.html">
-                        <img class="poster-img" src="~/images/sololeveling.jpg" alt="">
-                        <p class="anime-link">Поднятие уровня в одиночку</p>
+                <li class="recommend-anime-elem" id="poster-1">
+                    <a href="./html/video.html">
+                        <img class="recommend-poster-img" src="./images/sololeveling.jpg" alt="">
+                        <p class="recommend-anime-link anime-link">Поднятие уровня в одиночку</p>
                     </a>
                 </li>
-                <li class="poster-elem" id="poster-1">
-                    <a href="~/html/video.html">
-                        <img class="poster-img" src="~/images/dr_stone.jpg" alt="">
-                        <p class="anime-link">Доктор Стоун</p>
+                <li class="recommend-anime-elem" id="poster-1">
+                    <a href="./html/video.html">
+                        <img class="recommend-poster-img" src="./images/dr_stone.jpg" alt="">
+                        <p class="recommend-anime-link anime-link">Доктор Стоун</p>
                     </a>
                 </li>
-                <li class="poster-elem" id="poster-1">
-                    <a href="~/html/video.html">
-                        <img class="poster-img" src="~/images/monogatari.jpg" alt="">
-                        <p class="anime-link">Цикл историй</p>
+                <li class="recommend-anime-elem" id="poster-1">
+                    <a href="./html/video.html">
+                        <img class="recommend-poster-img" src="./images/monogatari.jpg" alt="">
+                        <p class="recommend-anime-link anime-link">Цикл историй. Межсезонье</p>
                     </a>
                 </li>
-                <li class="poster-elem" id="poster-1">
-                    <a href="~/html/video.html">
-                        <img class="poster-img" src="~/images/lazarus.jpg" alt="">
-                        <p class="anime-link">Лазарь</p>
+                <li class="recommend-anime-elem" id="poster-1">
+                    <a href="./html/video.html">
+                        <img class="recommend-poster-img" src="./images/lazarus.jpg" alt="">
+                        <p class="recommend-anime-link anime-link">Лазарь</p>
                     </a>
-                </li>
-        
+                </li> -->
+
             </ul>
         </div>
-        <div class="actual-container container" > <!-- grid сетка -->
-            <p class="poster-slider-title">Смотрят сейчас</p>
+        <div class="actual-container container">
+            <!-- grid сетка -->
+            <p class="container-title">Смотрят сейчас</p>
             <div class="actual-grid-container">
-                <a class="anime-elem" href="~/html/video.html">
-                    <img class="small-img" src="~/images/april.jpg" alt="">
-                    <div class="description-container">
-                        <p class="description">Твоя апрельская ложь</p>
+                <a class="actual-anime-elem" href="~/html/video.html?anime=naruto">
+                    <img class="actual-poster-img" src="~/images/april.jpg" alt="">
+                    <div class="actual-description-container">
+                        <p class="actual-title">Твоя апрельская ложь</p>
                         <div class="type">
                             <p class="format type-text">TV-сериал</p>
                             <p class="serias type-text">24 серий</p>
                         </div>
 
-                    </div> 
+                    </div>
                 </a>
-                <a class="anime-elem" href="~/html/video.html">
-                    <img class="small-img" src="~/images/sakomoto.jpg" alt="">
-                    <div class="description-container">
-                        <p class="description">Дни Сакамото</p>
+                <a class="actual-anime-elem" href="./html/video.html">
+                    <img class="actual-poster-img" src="./images/sakomoto.jpg" alt="">
+                    <div class="actual-description-container">
+                        <p class="actual-title">Дни Сакамото</p>
                         <div class="type">
                             <p class="format type-text">TV-сериал</p>
                             <p class="serias type-text">12 серий</p>
                         </div>
 
-                    </div> 
+                    </div>
                 </a>
-                <a class="anime-elem" href="~/html/video.html">
-                    <img class="small-img" src="~/images/small.jpg" alt="">
-                    <div class="description-container">
-                        <p class="description">Маленький гражданин 2</p>
+                <a class="actual-anime-elem" href="./html/video.html">
+                    <img class="actual-poster-img" src="./images/small.jpg" alt="">
+                    <div class="actual-description-container">
+                        <p class="actual-title">Маленький гражданин 2</p>
                         <div class="type">
                             <p class="format type-text">TV-сериал</p>
                             <p class="serias type-text">12 серий</p>
                         </div>
 
-                    </div> 
+                    </div>
                 </a>
-                <a class="anime-elem" href="~/html/video.html">
-                    <img class="small-img" src="~/images/hana.jpg" alt="">
-                    <div class="description-container">
-                        <p class="description">Хана расцветает подобно Сюре</p>
+                <a class="actual-anime-elem" href="./html/video.html">
+                    <img class="actual-poster-img" src="./images/hana.jpg" alt="">
+                    <div class="actual-description-container">
+                        <p class="actual-title">Хана расцветает подобно Сюре</p>
                         <div class="type">
                             <p class="format type-text">TV-сериал</p>
                             <p class="serias type-text">12 серий</p>
                         </div>
 
-                    </div> 
+                    </div>
                 </a>
-                <a class="anime-elem" href="~/html/video.html">
-                    <img class="small-img" src="~/images/konosuba.jpg" alt="">
+                <a class="actual-anime-elem" href="./html/video.html">
+                    <img class="actual-poster-img" src="./images/konosuba.jpg" alt="">
 
-                    <div class="description-container">
-                        <p class="description">Богиня благославляет этот чудесный мир</p>
+                    <div class="actual-description-container">
+                        <p class="actual-title">Богиня благославляет этот чудесный мир</p>
                         <div class="type">
                             <p class="format type-text">TV-сериал</p>
                             <p class="serias type-text">12 серий</p>
                         </div>
 
-                    </div> 
+                    </div>
                 </a>
-                <a class="anime-elem" href="~/html/video.html">
-                    <img class="small-img" src="~/images/another.jpg" alt="">
-                    <div class="description-container">
-                        <p class="description">Иная</p>
+                <a class="actual-anime-elem" href="./html/video.html">
+                    <img class="actual-poster-img" src="./images/another.jpg" alt="">
+                    <div class="actual-description-container">
+                        <p class="actual-title">Иная</p>
                         <div class="type">
                             <p class="format type-text">TV-сериал</p>
                             <p class="serias type-text">12 серий</p>
                         </div>
 
-                    </div> 
+                    </div>
                 </a>
-                <a class="anime-elem" href="~/html/video.html">
-                    <img class="small-img" src="~/images/nhk.jpg" alt="">
-                    <div class="description-container">
-                        <p class="description">Добро пожаловать в NHK</p>
+                <a class="actual-anime-elem" href="./html/video.html">
+                    <img class="actual-poster-img" src="./images/nhk.jpg" alt="">
+                    <div class="actual-description-container">
+                        <p class="actual-title">Добро пожаловать в NHK</p>
+                        <div class="type">
+                            <p class="format type-text">TV-сериал</p>
+                            <p class="serias type-text">25 серий</p>
+                        </div>
+
+                    </div>
+                </a>
+                <a class="actual-anime-elem" href="./html/video.html">
+                    <img class="actual-poster-img" src="./images/rezero.jpg" alt="">
+                    <div class="actual-description-container">
+                        <p class="actual-title">Re:Zero. Жизнь с нуля в альтернативном мире 3</p>
                         <div class="type">
                             <p class="format type-text">TV-сериал</p>
                             <p class="serias type-text">12 серий</p>
                         </div>
 
-                    </div> 
-                </a>
-                <a class="anime-elem" href="~/html/video.html">
-                    <img class="small-img" src="~/images/rezero.jpg" alt="">
-                    <div class="description-container">
-                        <p class="description">Re:Zero. Жизнь с нуля в альтернативном мире 3</p>
-                        <div class="type">
-                            <p class="format type-text">TV-сериал</p>
-                            <p class="serias type-text">12 серий</p>
-                        </div>
-
-                    </div> 
+                    </div>
                 </a>
             </div>
         </div>
-            <!-- <a href="/html/video.html">
-                <img src="" alt="">
-                <p>"Название"</p>
-                <p class="big-poster-desription">"Описание"</p>
-            </a> -->
-        <div class="other-anime-container container">
-            <ul class="big-anime-list">
-                <li class="big-animelist-elem">
+        <!-- <a href="/html/video.html">
+            <img src="" alt="">
+            <p>"Название"</p>
+            <p class="big-poster-desription">"Описание"</p>
+        </a> -->
+        <div class="big-anime-container container">
+            <ul class="big-list">
+                <li class="big-list-elem">
                     <a href="~/html/video.html">
-                        <div class="list-elem-container">
-                            <img class="list-poster" src="~/images/vinland.jpg" alt="">
+                        <div class="big-list-elem-container">
+                            <img class="big-list-poster-img" src="./images/vinland.jpg" alt="">
                             <div class="anime-description-container">
                                 <p class="anime-link list-title">Сага о Винланде</p>
                                 <p class="translated-name">Vinland saga</p>
+                                <p class="story-description">Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.                                   Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos</p>
                             </div>
 
                         </div>
                     </a>
                 </li>
-            </ul> 
-            <div class = "ongoings">
-                <p class="ongoing-title">Онгоинги</p>
-                <ul class="onoing_list">
-                </ul> 
+                <li class="big-list-elem">
+                    <a href="~/html/video.html">
+                        <div class="big-list-elem-container">
+                            <img class="big-list-poster-img" src="./images/lazarus.jpg" alt="">
+                            <div class="anime-description-container">
+                                <p class="anime-link list-title">Лазарь</p>
+                                <p class="translated-name">Lazarus</p>
+                                <p class="story-description">Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.                                   Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos</p>
+                            </div>
+
+                        </div>
+                    </a>
+                </li>
+
+            </ul>
+            <div class="ongoings-container">
+                <p class="ongoings-title">Онгоинги</p>
+                <ul class="ongoing-list">
+                    <li>
+                        <a href="~/html/video.html">
+                            <div class="ongoing-elem-container">
+                                <img class="ongoing-poster-img" src="./images/vinland.jpg" alt="">
+                                <div class="ongoing-description-container">
+                                    <p class="ongoing-title">Сага о Винланде</p>
+                                    <p class="serial-count">Серия 2/13</p>
+                                </div>
+
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="~/html/video.html">
+                            <div class="ongoing-elem-container">
+                                <img class="ongoing-poster-img" src="./images/vinland.jpg" alt="">
+                                <div class="ongoing-description-container">
+                                    <p class="ongoing-title">Мегадлинющее суперназвание</p>
+                                    <p class="serial-count">Серия 2/13</p>
+                                </div>
+
+                            </div>
+                        </a>
+                    </li>
+                </ul>
             </div>
             <!-- <ul class="poster_list">
                 <li class="poster-elem">
@@ -218,7 +256,8 @@
     <!-- <footer>
         <span class="contacts">https://github.com/VimatoSan</span>
     </footer> -->
-    <script src="~/js/script.js"></script>
+    <script src="~/js/header.js"></script>
+    <script src="~/js/main.js"></script>
 
 </body>
 </html>
