@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TitleRecommendationService.DbModels;
-[Table("title_rating")]
+[Table("titlerating")]
 public class TitleRating
 {
 	[Key]

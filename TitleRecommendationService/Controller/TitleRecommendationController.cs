@@ -50,8 +50,7 @@ public class TitleRecommendationController : Controller
 		};
 		_context.TitleRatings.Add(newTitle);
 		await _context.SaveChangesAsync();
-
-		return Ok();
+		return Ok($"{idTitle} успешно добавлен");
 	}
 
 	[HttpPost("addReview")]
@@ -62,13 +61,13 @@ public class TitleRecommendationController : Controller
 
         if (titleRating == null)
         {
-            titleRating = new TitleRating 
-			{ 
-				IdTitle = reviewDto.IdTitle,
-				Rating = 0,
-				CountReviews = 0
-			};
+            return NotFound($"Запись с ID {reviewDto.IdTitle} не найдена");
         }
+		
+		if (titleRating.Rating == null)
+		{
+			titleRating.Rating = 0;
+		}
 
         titleRating.CountReviews += 1;
         titleRating.Rating = (titleRating.Rating * (titleRating.CountReviews - 1) + reviewDto.Rating)
@@ -76,6 +75,22 @@ public class TitleRecommendationController : Controller
 
         await _context.SaveChangesAsync();
 
-        return Ok();
+        return Ok($"Оценка {reviewDto.Rating} успешно добавлена к {reviewDto.IdTitle}.");
+    }
+
+	[HttpPost("deleteTitle")]
+	public async Task<IActionResult> DeleteTitle([FromBody] int idTitle)
+	{
+        var titleRating = await _context.TitleRatings
+        .FirstOrDefaultAsync(tr => tr.IdTitle == idTitle);
+		if (titleRating == null)
+		{
+			return NotFound($"Запись с ID {idTitle} не найдена.");
+        }
+        _context.TitleRatings.Remove(titleRating);
+        await _context.SaveChangesAsync();
+		return Ok($"Запись с ID {idTitle} успешно удалена.");
     }
 }
+
+
