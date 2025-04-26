@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using TitleService.Models;
 using TitleService.DbModels;
+using Microsoft.AspNetCore.Cors;
 
 [ApiController]
+[EnableCors("AllowAll")]
 [Route("api/title")]
 public class TitleController : Controller
 {
     private readonly ApplicationDbContext _context;
-
 
     public TitleController(ApplicationDbContext context)
     {
