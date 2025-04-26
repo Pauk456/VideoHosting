@@ -4,6 +4,7 @@ namespace VideoService.Controllers;
 
 using FluentFTP;
 using FluentFTP.Exceptions;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.EntityFrameworkCore;
 using Renci.SshNet;
 using System;
@@ -29,6 +30,7 @@ public class VideoController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [EnableCors("AllowAll")]
     public async Task<IActionResult> GetVideo(int id)
     {
         var episode = await _context.Episodes.FindAsync(id);
@@ -40,7 +42,6 @@ public class VideoController : ControllerBase
 
         var absoluteUri = new Uri(new Uri("http://localhost:4999"), $"stream-video?filePath={episode.FilePath}");
 
-        // Используем относительный путь!
         var response = await _httpClient.GetAsync(
             absoluteUri,
             HttpCompletionOption.ResponseHeadersRead
@@ -51,9 +52,14 @@ public class VideoController : ControllerBase
             return StatusCode((int)response.StatusCode);
         }
 
+        // Получаем Content-Type из исходного ответа
+        var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
+
+        // Создаем ответ с поддержкой диапазонов
+        var stream = await response.Content.ReadAsStreamAsync();
         return File(
-            await response.Content.ReadAsStreamAsync(),
-            response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream",
+            stream,
+            contentType,
             enableRangeProcessing: true
         );
     }

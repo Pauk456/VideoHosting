@@ -17,7 +17,7 @@ function fetchRecommendations() {
                 li.className = 'recommend-anime-elem';
 
                 li.innerHTML = `
-                    <a href="./html/video.html?id=${anime.seriesId}">
+                    <a href="html/video.html?id=${anime.seriesId}">
                         <img class="recommend-poster-img" src="http://localhost:5001/api/img/${anime.seriesId}" alt="">
                         <p class="recommend-anime-link anime-link">${anime.name}</p>
                     </a>
