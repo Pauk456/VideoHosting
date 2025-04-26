@@ -1,14 +1,7 @@
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity.Data;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TitleRecommendationService.DbModels;
 using TitleRecommendationService.Models;
-using System.Linq;
 
 namespace TitleRecommendationService.Controllers;
 

@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace TitleRecommendationService.Models
 {
     public class TitleRatingData
