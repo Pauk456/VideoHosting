@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VideoService.DbModels;
+namespace DbUpdater.DbModels;
 [Table("seasons")]
 public class Season
 {

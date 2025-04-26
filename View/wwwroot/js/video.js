@@ -58,7 +58,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const videoPlayer = document.getElementsByClassName("video-player")[0];
 
         videoPlayer.src = videoUrl;
-        videoPlayer.load(); // пер
+        videoPlayer.load();
       });
 
       // Инициализация первой серии

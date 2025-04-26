@@ -1,11 +1,75 @@
 
 //ServerInteraction будет отвечать за взаимодействие с сервером.
 //“о есть дл€ подгрузки картинок и видео с сервера может ещЄ дл€ какой-нибудь инфы с сервера
+using ServerInteraction.Models;
+using System.IO;
+
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 app.Urls.Add("http://localhost:4999");
 
+//вынесу в контроллер если не будет лень
+app.MapGet("/get-structure", (HttpContext context) =>
+{
+    var basePath = @"D:\Anime\Videos";
+    var animeFiles = Directory.GetDirectories(basePath);
+
+    var animeList = new List<AnimeSeriesDto>();
+
+    foreach (var animePath in animeFiles)
+    {
+        var animeInf = new DirectoryInfo(animePath);
+        var animeSeries = new AnimeSeriesDto();
+
+        animeSeries.Title = animeInf.Name;
+
+        var seasonsPath = Directory.GetDirectories(animePath);
+
+        var seasons = new List<SeasonDto>();
+
+        Console.WriteLine(animeSeries.Title);
+
+        int seasonCount = 1;
+        foreach (var seasonPath in seasonsPath)
+        {
+
+            var season = new SeasonDto();
+            season.SeasonNumber = seasonCount++;
+
+            Console.WriteLine("    " + season.SeasonNumber);
+
+            var seasonInf = new DirectoryInfo(seasonPath);
+
+            var episodesPath = Directory.GetFiles(seasonPath);
+
+            var episodes = new List<EpisodeDto>();
+
+            int episodeCount = 1;
+
+            foreach (var episodePath in episodesPath)
+            {
+                Console.WriteLine("          " + episodePath);
+                var episode = new EpisodeDto();
+
+                episode.EpisodeNumber = episodeCount++;
+                episode.FilePath = episodePath.Split("D:\\Anime\\")[1];
+
+                episodes.Add(episode);
+            }
+
+            season.Episodes = episodes;
+            seasons.Add(season);
+        }
+
+        animeSeries.Seasons = seasons;
+
+        animeList.Add(animeSeries);
+    }
+    return animeList;
+});
+
+//вынесу в контроллер если не будет лень
 app.MapGet("/get-img", async (HttpContext context, string filePath) =>
 {
     var basePath = @"D:\Anime";
@@ -33,7 +97,7 @@ app.MapGet("/get-img", async (HttpContext context, string filePath) =>
 app.MapGet("/stream-video", async (HttpContext context, string filePath) =>
 {
     var basePath = @"D:\Anime";
-    var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath.Substring(1)));
+    var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath));
 
     if (!fullPath.StartsWith(basePath))
     {
