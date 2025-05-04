@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using DbUpdater.DbModels;
@@ -9,6 +12,10 @@ public class FileStructureUpdateService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly HttpClient _httpClient;
+    private readonly string uriTitleService = "http://localhost:5006/api/title";
+    private readonly string uriServerInteraction = "http://localhost:4999";
+    private readonly string uriRecommendationService = "http://localhost:5007/controller";
+    private readonly string uriSearchService = "http://localhost:5000";
 
     public FileStructureUpdateService(IServiceProvider serviceProvider)
     {
@@ -25,7 +32,7 @@ public class FileStructureUpdateService : BackgroundService
                 using var scope = _serviceProvider.CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-                var response = await _httpClient.GetAsync("http://localhost:4999/get-structure", stoppingToken);
+                var response = await _httpClient.GetAsync(uriServerInteraction + "/get-structure", stoppingToken);
                 response.EnsureSuccessStatusCode();
 
                 var content = await response.Content.ReadAsStringAsync(stoppingToken);
@@ -33,7 +40,7 @@ public class FileStructureUpdateService : BackgroundService
                 var receivedSeries = JsonSerializer.Deserialize<List<AnimeSeriesDto>>(content);
 
 
-                //две эти функции занимаются обновлением данных(одна лечи другая калечит)
+                //две эти функции занимаются обновлением данных(одна лечит другая калечит)
                 await AddToDatabase(dbContext, receivedSeries);
                 await RemoveMissingData(dbContext, receivedSeries);
             }
@@ -56,7 +63,16 @@ public class FileStructureUpdateService : BackgroundService
         {
             if (!receivedTitles.Contains(series.Title))
             {
-                dbContext.AnimeSeries.Remove(series);
+                // Удаление в микросервисе Димы
+                await _httpClient.DeleteAsync($"{uriTitleService}/deleteSeries/{series.Id}");
+
+                // Удаление в микросервисе Игоря
+                var content = new StringContent(JsonSerializer.Serialize(series.Id), Encoding.UTF8, "application/json");
+                await _httpClient.PostAsync($"{uriRecommendationService}/deleteTitle", content);
+
+                // Удаление в микросервисе Вовы, пока нет,но есть шанс добавки
+                await _httpClient.DeleteAsync($"{uriSearchService}/deleteTitle/{series.Id}");
+
                 continue;
             }
 
@@ -67,7 +83,9 @@ public class FileStructureUpdateService : BackgroundService
             {
                 if (!receivedSeasonNumbers.Contains(season.SeasonNumber))
                 {
-                    dbContext.Seasons.Remove(season);
+                    // Удаление сезона в микросервисе Димы
+                    await _httpClient.DeleteAsync($"{uriTitleService}/deleteSeason/{season.Id}");
+
                     continue;
                 }
 
@@ -78,7 +96,9 @@ public class FileStructureUpdateService : BackgroundService
                 {
                     if (!receivedEpisodeNumbers.Contains(episode.EpisodeNumber))
                     {
-                        dbContext.Episodes.Remove(episode);
+                        // Удаление эпизода в микросервисе Димы
+                        await _httpClient.DeleteAsync($"{uriTitleService}/deleteEpisode/{episode.Id}");
+
                     }
                 }
             }
@@ -99,15 +119,63 @@ public class FileStructureUpdateService : BackgroundService
 
             if (existingSeries == null)
             {
-                var newSeries = new AnimeSeries
+                //отправляются данные на микросервис Димы
+                string jsonString = JsonSerializer.Serialize<AnimeSeriesDto>(seriesDto);
+                var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+                var responseMessage = await _httpClient.PostAsync(uriTitleService + "/addSeries", content);
+                string responseString = await responseMessage.Content.ReadAsStringAsync();
+                int seriesId = 0;
+                // Парсим строку в int
+                if (int.TryParse(responseString, out int result))
                 {
-                    Title = seriesDto.Title,
-                    PreviewPath = seriesDto.PreviewPath ?? string.Empty,
-                    Seasons = new List<Season>()
-                };
+                    seriesId = result;
+                    Console.WriteLine($"Получено число: {result}");
+                }
 
+
+                //отправляются данные на микросервис Игоря
+                var data = new { idTitle = seriesId };
+                var json = JsonSerializer.Serialize(data);
+                var strContent = new StringContent(json, Encoding.UTF8, "application/json");
+                var recommendationServiceResponse = await _httpClient.PostAsync(uriRecommendationService + "/addNewTitle", strContent);
+                if (recommendationServiceResponse.IsSuccessStatusCode)
+                {
+                    var responseBody = await recommendationServiceResponse.Content.ReadAsStringAsync();
+                    Console.WriteLine(responseBody);
+                }
+
+
+                //отправляются данные на микросервис Вовы
+                var titleDto = new TitleDTO
+                {
+                    TitleName = seriesDto.Title,
+                    TitleId = seriesId
+                };
+                string searchServiceJsonString = JsonSerializer.Serialize(titleDto);
+                var searchServiceContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
+                try
+                {
+                    var response = await _httpClient.PostAsync(uriSearchService + "/postTitle", content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseBody = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"Успех: {responseBody}");
+                    }
+                    else
+                    {
+                        string errorResponse = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"Ошибка: {response.StatusCode} - {errorResponse}");
+                    }
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine($"Ошибка HTTP: {ex.Message}");
+                }
+
+                //теперь смотрим нужно ли обновлять сезоны для этого аниме 
+                var newSeries = dbContext.AnimeSeries.Find(seriesId);
                 await ProcessSeasons(dbContext, newSeries, seriesDto.Seasons);
-                dbContext.AnimeSeries.Add(newSeries);
             }
             else
             {
@@ -119,8 +187,6 @@ public class FileStructureUpdateService : BackgroundService
                 await ProcessSeasons(dbContext, existingSeries, seriesDto.Seasons);
             }
         }
-
-        await dbContext.SaveChangesAsync();
     }
 
     private async Task ProcessSeasons(ApplicationDbContext dbContext, AnimeSeries series, List<SeasonDto> seasonDtos)
@@ -133,15 +199,32 @@ public class FileStructureUpdateService : BackgroundService
 
             if (existingSeason == null)
             {
-                var newSeason = new Season
+                var addedSeason = new AddedSeason
                 {
                     SeasonNumber = seasonDto.SeasonNumber,
-                    SeriesId = series.Id,
-                    Episodes = new List<Episode>()
+                    SeriesId = series.Id
                 };
 
+                string jsonString = JsonSerializer.Serialize<AddedSeason>(addedSeason);
+
+                var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+                var responseMessage = await _httpClient.PostAsync(uriTitleService + "/addSeason", content);
+
+                string responseString = await responseMessage.Content.ReadAsStringAsync();
+
+                int seasonId = 0;
+
+                // Парсим строку в int
+                if (int.TryParse(responseString, out int result))
+                {
+                    seasonId = result;
+                    Console.WriteLine($"Получено число: {result}");
+                }
+
+                var newSeason = dbContext.Seasons.Find(seasonId);
+
                 ProcessEpisodes(newSeason, seasonDto.Episodes);
-                series.Seasons.Add(newSeason);
             }
             else
             {
@@ -160,14 +243,18 @@ public class FileStructureUpdateService : BackgroundService
 
             if (existingEpisode == null)
             {
-                var newEpisode = new Episode
+                var newEpisode = new AddedEpisode
                 {
                     EpisodeNumber = episodeDto.EpisodeNumber,
                     FilePath = episodeDto.FilePath,
                     SeasonId = season.Id
                 };
 
-                season.Episodes.Add(newEpisode);
+                string jsonString = JsonSerializer.Serialize<AddedEpisode>(newEpisode);
+
+                var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+                var responseMessage = _httpClient.PostAsync(uriTitleService + "/addEpisode", content);
             }
             else
             {
@@ -204,5 +291,32 @@ public class FileStructureUpdateService : BackgroundService
 
         [JsonPropertyName("filePath")]
         public string FilePath { get; set; } = string.Empty;
+    }
+
+    public class TitleDTO
+    {
+        public string? TitleName { get; set; }
+        public int? TitleId { get; set; }
+    }
+
+    public class AddedEpisode
+    {
+        [JsonPropertyName("episodeNumber")]
+        public int EpisodeNumber { get; set; }
+
+        [JsonPropertyName("filePath")]
+        public string FilePath { get; set; }
+
+        [JsonPropertyName("seasonId")]
+        public int SeasonId { get; set; }
+    }
+
+    public class AddedSeason
+    {
+        [JsonPropertyName("seasonNumber")]
+        public int SeasonNumber { get; set; }
+
+        [JsonPropertyName("seriesId")]
+        public int SeriesId { get; set; }
     }
 }

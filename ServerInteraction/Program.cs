@@ -26,6 +26,8 @@ app.MapGet("/get-structure", (HttpContext context) =>
 
         var seasonsPath = Directory.GetDirectories(animePath);
 
+        animeSeries.PreviewPath = Directory.GetFiles(animePath)[0].Split("D:\\Anime\\")[1];
+
         var seasons = new List<SeasonDto>();
 
         Console.WriteLine(animeSeries.Title);
@@ -73,7 +75,7 @@ app.MapGet("/get-structure", (HttpContext context) =>
 app.MapGet("/get-img", async (HttpContext context, string filePath) =>
 {
     var basePath = @"D:\Anime";
-    var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath.Substring(1)));
+    var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath));
 
     if (!fullPath.StartsWith(basePath))
     {
