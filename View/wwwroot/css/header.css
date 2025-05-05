@@ -1,13 +1,13 @@
 @font-face {
     font-family: Jaro;
-    src: url(../fonts/Jaro-Regular.woff2) format("woff2");
+    src: url('../fonts/Jaro-Regular.woff2') format("woff2");
     font-weight: 400;
 
 }
 
 @font-face {
     font-family: RobotoMono;
-    src: url(../fonts/RobotoMono-Regular.woff2) format("woff2");
+    src: url('../fonts/RobotoMono-Regular.woff2') format("woff2");
     font-weight: 400;
 }
 
@@ -38,27 +38,18 @@
 
 @font-face {
   font-family: 'Rubik';
-  src: url('Rubik-Bold.woff2') format('woff2');
+  src: url('../fonts/Rubik/Rubik-Bold.woff2') format('woff2');
   font-weight: bold;
   font-style: normal;
   font-display: swap;
 }
-
-@font-face {
-  font-family: 'Rubik';
-  src: url('Rubik-SemiBold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
 
 
 
 :root {
   --global-padding: min(150px, 8vw);
   --block-color: #E7DFF0;
-  /* --block-color: #565963; */
+  --in-block-padding: 20px;
   --background-color: #565963;
 
   /* --background-color: #624A3B; */
@@ -90,6 +81,26 @@ body {
     background-attachment: fixed; /* Закрепляет фон */
 
     background-color: var(--background-color);
+}
+
+.container-title-text {
+  font-size: min(20px, 3.5vw);
+}
+
+.elem-text-big {
+  font-size: min(18px, 3.25vw);
+}
+
+.elem-text-medium {
+  font-size: min(16px, 2.8vw);
+}
+
+.elem-text-small {
+  font-size: min(13px, 2.3vw);
+}
+
+.elem-text-extrasmall {
+  font-size: min(11px, 2vw);
 }
 
 
@@ -138,6 +149,7 @@ left: 0;
   width: 100%;
   box-sizing: border-box; 
   max-width: 1200px; 
+  padding-inline: var(--in-block-padding);
   margin-inline: auto;
 }
 

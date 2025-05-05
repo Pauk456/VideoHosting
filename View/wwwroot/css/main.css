@@ -16,7 +16,7 @@ main {
     height: auto; 
     overflow: hidden;
     padding-bottom: 3px;
-    padding-inline: 20px;
+    padding-inline: var(--in-block-padding);
 }
 
 .recommend-anime-list {
@@ -48,7 +48,7 @@ main {
     font-size: medium;
 }
 
-.repcommend-poster-img {    
+.recommend-poster-img {    
     border-radius: 5px;
     /* height: 224px; */
     width: 100%;
@@ -73,30 +73,30 @@ main {
     background-color: var(--block-color);
     width: 100%;
     border-radius: 10px;
-    padding-inline: 20px;
+    /* padding-inline: 20px; */
 
 }
 
 .actual-description-container {
 margin-left: 10px;
   display: flex;
-  font-size: small;
   gap: 8px;
   flex-direction: column;
   justify-content: space-between;
 }
 
 .actual-grid-container {
-    grid-template-columns: repeat(auto-fill, minmax(min(256px, 45%), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(230px, 45%), 1fr));
     /* grid-template-columns: repeat(auto-fill, minmax(256px, 1fr)); */
     padding-top: 7px;
-    grid-template-rows: 94px, 94px;
+    grid-template-rows: 104px, 104px;
     column-gap: 15px;
-    row-gap: 60px;
+    row-gap: 45px;
     display: grid;
 }
 
 .actual-title {
+    /* font-size: min(15px, 2.75vw); */
     white-space: normal;
     overflow-wrap: break-word;
     line-height: 1.2;
@@ -134,9 +134,6 @@ margin-left: 10px;
     padding-left: 10px;
 }
 
-.serial-count {
-    font-size: smaller;
-}
 
 .ongoing-title {
     color: var(--link-color);
@@ -149,7 +146,6 @@ margin-left: 10px;
 
 .type-text {
     line-height: 1;
-    font-size: smaller;
     text-decoration: none;
 }
 
@@ -158,24 +154,29 @@ margin-left: 10px;
 }
 
 .actual-poster-img{
+    border-radius: 5px;
     object-fit: cover;
-    height: 94px;
-    width: 94px;
+    height: 104px;
+    width: 104px;
     flex-shrink: 0;
 }
 
 .big-anime-container {
     display: flex;
+    flex-wrap: wrap; /* чтобы блоки переносились на новую строку */
+    justify-content: space-between;
+    padding-inline: 0px;
     margin-top: var( --block-between-margin);
 }
 
 .big-list {
     border-radius: 10px;
-    flex-grow: 4;
     background-color: var(--block-color);
+    width: 40vw;
+    flex-grow: 1;
     height: 1000px;
-    padding-left: 20px;
-    padding-top: 5px;
+    padding-inline: var(--in-block-padding);
+    /* padding-top: 5px; */
 }
 
 .big-list-elem-container {
@@ -186,13 +187,14 @@ margin-left: 10px;
 }
 
 .big-list-poster-img {
-    width: 150px;
+    width: min(150px, 35vw);
     flex-shrink: 0;
 }
 
 
 .story-description {
-    font-size: small;
+    margin-top: 5px;
+    /* font-size: small; */
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 8;
@@ -202,12 +204,15 @@ margin-left: 10px;
 
 .ongoings-container {
     max-width: 27vw;
-    padding-inline: 10px;
+    /* padding-right: 10px;
+    padding-left: var(--in-block-padding); */
+    width: min(220px, 24vw);
+    padding-bottom: 10px;
     /* text-align: center; */
     padding-top: 5px;
     border-radius: 10px;
-    flex-grow: 1;
-    height: 600px;
+    padding-left: 12px;
+    max-height: 600px;
     margin-left: var( --block-between-margin);
     background-color: var(--block-color);
 }
@@ -222,14 +227,38 @@ margin-left: 10px;
 }
 
 .ongoing-poster-img {
-    width: 56px;
-    height: 56px;
+    width: min(56px, 13vw);
+    height: min(56px, 13vw);
     border-radius: 28px;
     flex-shrink: 0; /* 🔒 запрещаем сжимать */
 
 }
 
+@media(max-width: 760px) {
+    .big-anime-container{
+        padding-inline: 0px;
+    }
+    .ongoings-container {
+        padding-left: var(--in-block-padding);
+        /* padding-left: 20px; */
+        order: -1;
+        margin-left: 0;
+        flex-basis: 100%;
+        max-width: 100%;
+    }
+
+    .ongoings-title {
+        text-align: left;
+
+    }
+    
+    .big-list {
+        margin-top: var(--block-between-margin);
+    }
+}
+
 @media(max-width: 660px) {
+
     .actual-poster-img {
         width: 15vw;
         height: 15vw;
@@ -261,14 +290,17 @@ margin-left: 10px;
 
 
 @media(max-width: 470px) {
+    :root {
+        --in-block-padding: 14px;
+    }
     .recommend-anime-list {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         gap: 14px; 
     }
     .recommends-container {
-        padding-inline: 14px;
+        /* padding-inline: 14px; */
     }
     .actual-container {
-        padding-inline: 14px;
+        /* padding-inline: 14px; */
     }
 }

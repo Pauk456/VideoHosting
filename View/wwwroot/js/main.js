@@ -1,75 +1,75 @@
 // https://4affaaed-6fc4-46c1-ad30-b085d8124025.mock.pstmn.io/test
 
-function fetchRecommendations() {
-    
-    fetch('http://localhost:5006/api/title/all') // замените на реальный адрес API
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            const list1 = document.getElementsByClassName('recommend-anime-list');
-            console.log(list1);
-            const list = document.getElementsByClassName('recommend-anime-list')[0];
-            console.log(list);
-            list.innerHTML = ''; // очистка перед добавлением
-
-            data.forEach(anime => {
-                const li = document.createElement('li');
-                li.className = 'recommend-anime-elem';
-
-                li.innerHTML = `
-                    <a href="html/video.html?id=${anime.seriesId}">
-                        <img class="recommend-poster-img" src="http://localhost:5001/api/img/${anime.seriesId}" alt="">
-                        <p class="recommend-anime-link anime-link">${anime.name}</p>
-                    </a>
-                `;
-
-                list.appendChild(li);
-            });
-        })
-        .catch(err => console.error("Ошибка при загрузке рекомендаций:", err));
-}
-
-
 // function fetchRecommendations() {
-//     fetch('https://4affaaed-6fc4-46c1-ad30-b085d8124025.mock.pstmn.io/test')
+    
+//     fetch('http://localhost:5006/api/title/all') // замените на реальный адрес API
 //         .then(response => response.json())
 //         .then(data => {
+//             console.log(data);
+//             const list1 = document.getElementsByClassName('recommend-anime-list');
+//             console.log(list1);
 //             const list = document.getElementsByClassName('recommend-anime-list')[0];
+//             console.log(list);
 //             list.innerHTML = ''; // очистка перед добавлением
 
 //             data.forEach(anime => {
 //                 const li = document.createElement('li');
 //                 li.className = 'recommend-anime-elem';
 
-//                 // Создаём элементы вручную, чтобы можно было навесить обработчик
-//                 const a = document.createElement('a');
-//                 a.href = './html/video.html'; // временная ссылка, будет заменена
+//                 li.innerHTML = `
+//                     <a href="./html/video.html?id=${anime.seriesId}">
+//                         <img class="recommend-poster-img" src="http://localhost:5001/api/img/${anime.seriesId}" alt="">
+//                         <p class="recommend-anime-link anime-link">${anime.name}</p>
+//                     </a>
+//                 `;
 
-//                 const img = document.createElement('img');
-//                 img.className = 'recommend-poster-img';
-//                 img.src = anime.image;
-//                 img.alt = '';
-
-//                 const p = document.createElement('p');
-//                 p.className = 'recommend-anime-link anime-link';
-//                 p.textContent = anime.title;
-
-//                 a.appendChild(img);
-//                 a.appendChild(p);
-
-//                 // Обработчик клика
-//                 a.addEventListener('click', function (event) {
-//                     event.preventDefault(); // отменить стандартный переход
-//                     const encodedTitle = encodeURIComponent(anime.title);
-//                     window.location.href = `./html/video.html?text=${encodedTitle}`;
-//                 });
-
-//                 li.appendChild(a);
 //                 list.appendChild(li);
 //             });
 //         })
 //         .catch(err => console.error("Ошибка при загрузке рекомендаций:", err));
 // }
+
+
+function fetchRecommendations() {
+    fetch('https://4affaaed-6fc4-46c1-ad30-b085d8124025.mock.pstmn.io/test')
+        .then(response => response.json())
+        .then(data => {
+            const list = document.getElementsByClassName('recommend-anime-list')[0];
+            list.innerHTML = ''; // очистка перед добавлением
+
+            data.forEach(anime => {
+                const li = document.createElement('li');
+                li.className = 'recommend-anime-elem';
+
+                // Создаём элементы вручную, чтобы можно было навесить обработчик
+                const a = document.createElement('a');
+                a.href = './html/video.html'; // временная ссылка, будет заменена
+
+                const img = document.createElement('img');
+                img.className = 'recommend-poster-img';
+                img.src = anime.image;
+                img.alt = '';
+
+                const p = document.createElement('p');
+                p.className = 'recommend-anime-link anime-link elem-text-big';
+                p.textContent = anime.title;
+
+                a.appendChild(img);
+                a.appendChild(p);
+
+                // Обработчик клика
+                a.addEventListener('click', function (event) {
+                    event.preventDefault(); // отменить стандартный переход
+                    const encodedTitle = encodeURIComponent(anime.title);
+                    window.location.href = `./html/video.html?text=${encodedTitle}`;
+                });
+
+                li.appendChild(a);
+                list.appendChild(li);
+            });
+        })
+        .catch(err => console.error("Ошибка при загрузке рекомендаций:", err));
+}
 
 
 function resizeRecommendContainer() {
