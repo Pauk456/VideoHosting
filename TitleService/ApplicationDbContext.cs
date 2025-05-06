@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TitleService.DbModels;
 
+namespace TitleService;
 public class ApplicationDbContext : DbContext
 {
     public DbSet<AnimeSeries> AnimeSeries { get; set; }
