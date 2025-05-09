@@ -97,7 +97,7 @@ public class TitleController : Controller
     }
 
     [HttpPost("addSeason")]
-    public int addSeason(AddedSeason seasonDto)
+    public int AddSeason(AddedSeason seasonDto)
     {
         var newSeason = new Season
         {

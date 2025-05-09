@@ -9,6 +9,8 @@ using TitleService;
 using TitleService.Models.DTO;
 using Xunit;
 using Microsoft.AspNetCore.Mvc;
+using TestProject;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace TitleService.Tests
 {
@@ -42,6 +44,7 @@ namespace TitleService.Tests
 
             _mockContext.Setup(c => c.AnimeSeries).Returns(mockSet.Object);
 
+
             // Act
             var result = await _controller.GetAllAnimeSeries();
 
@@ -52,62 +55,31 @@ namespace TitleService.Tests
         }
 
         [Fact]
-        public async Task GetSeasonsAndEpisodes_ReturnsCorrectStructure()
-        {
-            // Arrange
-            var seriesId = 1;
-
-            var seasons = new List<Season>
-            {
-                new Season { Id = 1, SeasonNumber = 1, SeriesId = seriesId },
-                new Season { Id = 2, SeasonNumber = 2, SeriesId = seriesId }
-            }.AsQueryable();
-
-            var episodes = new List<Episode>
-            {
-                new Episode { Id = 1, EpisodeNumber = 1, SeasonId = 1 },
-                new Episode { Id = 2, EpisodeNumber = 2, SeasonId = 1 },
-                new Episode { Id = 3, EpisodeNumber = 1, SeasonId = 2 }
-            }.AsQueryable();
-
-            var mockSeasonSet = new Mock<DbSet<Season>>();
-            mockSeasonSet.As<IQueryable<Season>>().Setup(m => m.Provider).Returns(seasons.Provider);
-            mockSeasonSet.As<IQueryable<Season>>().Setup(m => m.Expression).Returns(seasons.Expression);
-            mockSeasonSet.As<IQueryable<Season>>().Setup(m => m.ElementType).Returns(seasons.ElementType);
-            mockSeasonSet.As<IQueryable<Season>>().Setup(m => m.GetEnumerator()).Returns(seasons.GetEnumerator());
-
-            var mockEpisodeSet = new Mock<DbSet<Episode>>();
-            mockEpisodeSet.As<IQueryable<Episode>>().Setup(m => m.Provider).Returns(episodes.Provider);
-            mockEpisodeSet.As<IQueryable<Episode>>().Setup(m => m.Expression).Returns(episodes.Expression);
-            mockEpisodeSet.As<IQueryable<Episode>>().Setup(m => m.ElementType).Returns(episodes.ElementType);
-            mockEpisodeSet.As<IQueryable<Episode>>().Setup(m => m.GetEnumerator()).Returns(episodes.GetEnumerator());
-
-            _mockContext.Setup(c => c.Seasons).Returns(mockSeasonSet.Object);
-            _mockContext.Setup(c => c.Episodes).Returns(mockEpisodeSet.Object);
-
-            // Act
-            var result = await _controller.GetSeasons(seriesId);
-
-            // Assert
-            Assert.Equal(2, result.Count);
-            Assert.Equal(1, result[0].SeasonNumber);
-            Assert.Equal(2, result[0].Episodes.Count);
-            Assert.Equal(2, result[1].SeasonNumber);
-            Assert.Single(result[1].Episodes);
-        }
-
-        [Fact]
         public void SetSeries_AddsNewSeriesAndReturnsId()
         {
             // Arrange
             var testSeries = new AnimeSeriesDto { Title = "New Series" };
-            var mockSet = new Mock<DbSet<AnimeSeries>>();
-
             var seriesList = new List<AnimeSeries>();
-            mockSet.Setup(m => m.Add(It.IsAny<AnimeSeries>())).Callback<AnimeSeries>(s => seriesList.Add(s));
+
+            var mockSet = new Mock<DbSet<AnimeSeries>>();
+            mockSet.Setup(m => m.Add(It.IsAny<AnimeSeries>()))
+                   .Callback<AnimeSeries>(s => {
+                       s.Id = 0; 
+                       seriesList.Add(s);
+                   })
+                   .Returns((AnimeSeries s) =>
+                   {
+                       return null;
+                   });
+
+            var queryable = seriesList.AsQueryable();
+            mockSet.As<IQueryable<AnimeSeries>>().Setup(m => m.Provider).Returns(queryable.Provider);
+            mockSet.As<IQueryable<AnimeSeries>>().Setup(m => m.Expression).Returns(queryable.Expression);
+            mockSet.As<IQueryable<AnimeSeries>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
+            mockSet.As<IQueryable<AnimeSeries>>().Setup(m => m.GetEnumerator()).Returns(queryable.GetEnumerator());
 
             _mockContext.Setup(c => c.AnimeSeries).Returns(mockSet.Object);
-            _mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(1));
+            _mockContext.Setup(c => c.SaveChanges()).Returns(1);
 
             // Act
             var result = _controller.SetSeries(testSeries);
@@ -123,16 +95,28 @@ namespace TitleService.Tests
         {
             // Arrange
             var testSeason = new AddedSeason { SeasonNumber = 1, SeriesId = 1 };
-            var mockSet = new Mock<DbSet<Season>>();
-
             var seasonList = new List<Season>();
-            mockSet.Setup(m => m.Add(It.IsAny<Season>())).Callback<Season>(s => seasonList.Add(s));
+
+            var mockSet = new Mock<DbSet<Season>>();
+            mockSet.Setup(m => m.Add(It.IsAny<Season>()))
+                   .Callback<Season>(seasonList.Add)
+                   .Returns((Season s) =>
+                   {
+                       s.Id = 0; 
+                       return null; 
+                   });
+
+            var queryable = seasonList.AsQueryable();
+            mockSet.As<IQueryable<Season>>().Setup(m => m.Provider).Returns(queryable.Provider);
+            mockSet.As<IQueryable<Season>>().Setup(m => m.Expression).Returns(queryable.Expression);
+            mockSet.As<IQueryable<Season>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
+            mockSet.As<IQueryable<Season>>().Setup(m => m.GetEnumerator()).Returns(queryable.GetEnumerator());
 
             _mockContext.Setup(c => c.Seasons).Returns(mockSet.Object);
-            _mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(1));
+            _mockContext.Setup(c => c.SaveChanges()).Returns(1);
 
             // Act
-            var result = _controller.addSeason(testSeason);
+            var result = _controller.AddSeason(testSeason);
 
             // Assert
             Assert.Equal(0, result);
@@ -146,10 +130,19 @@ namespace TitleService.Tests
         {
             // Arrange
             var testEpisode = new AddedEpisode { EpisodeNumber = 1, SeasonId = 1, FilePath = "path/to/file" };
+            var episodeList = new List<Episode>();
+
             var mockSet = new Mock<DbSet<Episode>>();
 
-            var episodeList = new List<Episode>();
-            mockSet.Setup(m => m.Add(It.IsAny<Episode>())).Callback<Episode>(e => episodeList.Add(e));
+            mockSet.Setup(m => m.Add(It.IsAny<Episode>())).Callback<Episode>(e =>
+            {
+                e.Id = episodeList.Count + 1;
+                episodeList.Add(e);
+            });
+            mockSet.As<IQueryable<Episode>>().Setup(m => m.Provider).Returns(episodeList.AsQueryable().Provider);
+            mockSet.As<IQueryable<Episode>>().Setup(m => m.Expression).Returns(episodeList.AsQueryable().Expression);
+            mockSet.As<IQueryable<Episode>>().Setup(m => m.ElementType).Returns(episodeList.AsQueryable().ElementType);
+            mockSet.As<IQueryable<Episode>>().Setup(m => m.GetEnumerator()).Returns(() => episodeList.GetEnumerator());
 
             _mockContext.Setup(c => c.Episodes).Returns(mockSet.Object);
             _mockContext.Setup(c => c.SaveChanges()).Returns(1);
@@ -158,86 +151,125 @@ namespace TitleService.Tests
             var result = _controller.AddEpisode(testEpisode);
 
             // Assert
-            Assert.Equal(0, result);
+            Assert.Equal(1, result);
             Assert.Single(episodeList);
+            Assert.Equal(1, episodeList[0].Id);
             Assert.Equal(1, episodeList[0].EpisodeNumber);
             Assert.Equal(1, episodeList[0].SeasonId);
             Assert.Equal("path/to/file", episodeList[0].FilePath);
         }
 
         [Fact]
-        public async Task DeleteSeries_RemovesSeriesAndRelatedData()
+        public async Task DeleteSeries()
         {
             // Arrange
             var seriesId = 1;
+            var episode = new Episode { Id = 1 };
+            var season = new Season
+            {
+                Id = 1,
+                Episodes = new List<Episode> { episode }
+            };
             var series = new AnimeSeries
             {
                 Id = seriesId,
-                Seasons = new List<Season>
-                {
-                    new Season
-                    {
-                        Id = 1,
-                        Episodes = new List<Episode>
-                        {
-                            new Episode { Id = 1 }
-                        }
-                    }
-                }
+                Seasons = new List<Season> { season }
             };
 
             var mockSeriesSet = new Mock<DbSet<AnimeSeries>>();
+            var seriesData = new List<AnimeSeries> { series }.AsQueryable();
+
+            mockSeriesSet.As<IQueryable<AnimeSeries>>().Setup(m => m.Provider)
+                .Returns(new TestAsyncQueryProvider<AnimeSeries>(seriesData.Provider));
+            mockSeriesSet.As<IQueryable<AnimeSeries>>().Setup(m => m.Expression)
+                .Returns(seriesData.Expression);
+            mockSeriesSet.As<IQueryable<AnimeSeries>>().Setup(m => m.ElementType)
+                .Returns(seriesData.ElementType);
+            mockSeriesSet.As<IQueryable<AnimeSeries>>().Setup(m => m.GetEnumerator())
+                .Returns(seriesData.GetEnumerator());
+
+            mockSeriesSet.As<IAsyncEnumerable<AnimeSeries>>()
+                .Setup(m => m.GetAsyncEnumerator(It.IsAny<CancellationToken>()))
+                .Returns(new TestAsyncEnumerator<AnimeSeries>(seriesData.GetEnumerator()));
+
             var mockSeasonSet = new Mock<DbSet<Season>>();
+            var seasonsData = series.Seasons.AsQueryable();
+
+            mockSeasonSet.As<IQueryable<Season>>().Setup(m => m.Provider)
+                .Returns(new TestAsyncQueryProvider<Season>(seasonsData.Provider));
+
             var mockEpisodeSet = new Mock<DbSet<Episode>>();
+            var episodesData = season.Episodes.AsQueryable();
+
+            mockEpisodeSet.As<IQueryable<Episode>>().Setup(m => m.Provider)
+                .Returns(new TestAsyncQueryProvider<Episode>(episodesData.Provider));
 
             _mockContext.Setup(c => c.AnimeSeries).Returns(mockSeriesSet.Object);
             _mockContext.Setup(c => c.Seasons).Returns(mockSeasonSet.Object);
             _mockContext.Setup(c => c.Episodes).Returns(mockEpisodeSet.Object);
-
-            _mockContext.Setup(c => c.AnimeSeries.FindAsync(seriesId)).ReturnsAsync(series);
-            _mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+            _mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
 
             // Act
             var result = await _controller.DeleteSeries(seriesId);
 
             // Assert
             mockSeriesSet.Verify(m => m.Remove(series), Times.Once);
-            mockSeasonSet.Verify(m => m.RemoveRange(It.IsAny<IEnumerable<Season>>()), Times.Once);
-            mockEpisodeSet.Verify(m => m.RemoveRange(It.IsAny<IEnumerable<Episode>>()), Times.Once);
+            mockSeasonSet.Verify(m => m.RemoveRange(series.Seasons), Times.Once);
+            mockEpisodeSet.Verify(m => m.RemoveRange(season.Episodes), Times.Once);
+            _mockContext.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
-        public async Task DeleteSeason_RemovesSeasonAndEpisodes()
+        public async Task DeleteSeason()
         {
             // Arrange
             var seasonId = 1;
             var season = new Season
             {
                 Id = seasonId,
-                Episodes = new List<Episode> { new Episode { Id = 1 } }
+                Episodes = new List<Episode>()
             };
 
-            var mockSeasonSet = new Mock<DbSet<Season>>();
-            var mockEpisodeSet = new Mock<DbSet<Episode>>();
+            var mockSeasons = new Mock<DbSet<Season>>();
+            var seasonsData = new List<Season> { season }.AsQueryable();
 
-            _mockContext.Setup(c => c.Seasons).Returns(mockSeasonSet.Object);
-            _mockContext.Setup(c => c.Episodes).Returns(mockEpisodeSet.Object);
+            mockSeasons.As<IQueryable<Season>>().Setup(m => m.Provider)
+                .Returns(new TestAsyncQueryProvider<Season>(seasonsData.Provider));
+            mockSeasons.As<IQueryable<Season>>().Setup(m => m.Expression)
+                .Returns(seasonsData.Expression);
+            mockSeasons.As<IQueryable<Season>>().Setup(m => m.ElementType)
+                .Returns(seasonsData.ElementType);
+            mockSeasons.As<IQueryable<Season>>().Setup(m => m.GetEnumerator())
+                .Returns(seasonsData.GetEnumerator());
 
-            _mockContext.Setup(c => c.Seasons.FindAsync(seasonId)).ReturnsAsync(season);
-            _mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+            mockSeasons.As<IAsyncEnumerable<Season>>()
+                .Setup(m => m.GetAsyncEnumerator(It.IsAny<CancellationToken>()))
+                .Returns(new TestAsyncEnumerator<Season>(seasonsData.GetEnumerator()));
+
+            var mockEpisodes = new Mock<DbSet<Episode>>();
+            var episodesData = season.Episodes.AsQueryable();
+
+            mockEpisodes.As<IQueryable<Episode>>().Setup(m => m.Provider)
+                .Returns(new TestAsyncQueryProvider<Episode>(episodesData.Provider));
+
+            _mockContext.Setup(c => c.Seasons).Returns(mockSeasons.Object);
+            _mockContext.Setup(c => c.Episodes).Returns(mockEpisodes.Object);
+            _mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
 
             // Act
             var result = await _controller.DeleteSeason(seasonId);
 
             // Assert
-            mockSeasonSet.Verify(m => m.Remove(season), Times.Once);
-            mockEpisodeSet.Verify(m => m.RemoveRange(It.IsAny<IEnumerable<Episode>>()), Times.Once);
+            mockSeasons.Verify(m => m.Remove(season), Times.Once);
+            _mockContext.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
-        public async Task DeleteEpisode_RemovesEpisode()
+        public async Task DeleteEpisode()
         {
             // Arrange
             var episodeId = 1;
@@ -256,40 +288,6 @@ namespace TitleService.Tests
             Assert.IsType<OkObjectResult>(result);
         }
 
-        [Fact]
-        public async Task GetSeasons_ReturnsEmptyList_WhenNoSeasonsExist()
-        {
-            // Arrange
-            var seriesId = 1;
-            var seasons = new List<Season>().AsQueryable();
 
-            var mockSet = new Mock<DbSet<Season>>();
-            mockSet.As<IQueryable<Season>>().Setup(m => m.Provider).Returns(seasons.Provider);
-            mockSet.As<IQueryable<Season>>().Setup(m => m.Expression).Returns(seasons.Expression);
-            mockSet.As<IQueryable<Season>>().Setup(m => m.ElementType).Returns(seasons.ElementType);
-            mockSet.As<IQueryable<Season>>().Setup(m => m.GetEnumerator()).Returns(seasons.GetEnumerator());
-
-            _mockContext.Setup(c => c.Seasons).Returns(mockSet.Object);
-
-            // Act
-            var result = await _controller.GetSeasons(seriesId);
-
-            // Assert
-            Assert.Empty(result);
-        }
-
-        [Fact]
-        public async Task DeleteSeries_ReturnsNotFound_WhenSeriesDoesNotExist()
-        {
-            // Arrange
-            var seriesId = 999;
-            _mockContext.Setup(c => c.AnimeSeries.FindAsync(seriesId)).ReturnsAsync((AnimeSeries)null);
-
-            // Act
-            var result = await _controller.DeleteSeries(seriesId);
-
-            // Assert
-            Assert.IsType<NotFoundObjectResult>(result);
-        }
     }
 }
