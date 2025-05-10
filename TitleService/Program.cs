@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
+using TitleService;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
