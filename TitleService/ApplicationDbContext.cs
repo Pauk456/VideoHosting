@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using TitleService.DbModels;
 
+namespace TitleService;
 public class ApplicationDbContext : DbContext
 {
-    public DbSet<AnimeSeries> AnimeSeries { get; set; }
-    public DbSet<Season> Seasons { get; set; }
-    public DbSet<Episode> Episodes { get; set; }
+    public virtual DbSet<AnimeSeries> AnimeSeries { get; set; }
+    public virtual DbSet<Season> Seasons { get; set; }
+    public virtual DbSet<Episode> Episodes { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

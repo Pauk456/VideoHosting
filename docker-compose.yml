@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   view:
     image: view
@@ -7,6 +9,8 @@ services:
       - "5000:5000"
     depends_on:
       - videoservice
+      - titleservice
+
   db:
     image: postgres:17
     environment:
@@ -18,6 +22,7 @@ services:
       - pg_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
   videoservice:
     image: videoservice
     build:
@@ -25,6 +30,26 @@ services:
     ports:
       - "5001:5001"
     depends_on:
-    - db  
+      - db
+
+  titleservice:
+    image: titleservice
+    build:
+      context: ./titleservice
+    ports:
+      - "5006:5006"
+    depends_on:
+      - db
+
+  dbupdater:
+    image: dbupdater
+    build:
+      context: ./dbupdater
+    depends_on:
+      - db
+      - titleservice
+    environment:
+      TitleServiceUrl: "http://titleservice:5006"
+
 volumes:
-    pg_data:
+  pg_data:

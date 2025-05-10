@@ -7,6 +7,9 @@ using System.IO;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
+
+//app.UseHttpsRedirection();
+
 app.Urls.Add("http://localhost:4999");
 
 //вынесу в контроллер если не будет лень

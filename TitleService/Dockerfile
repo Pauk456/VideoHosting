@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Копируем файлы проекта и восстанавливаем зависимости
-COPY VideoAndImgService.csproj .
+COPY TitleService.csproj .
 RUN dotnet restore
 
 # Копируем весь код и собираем проект
@@ -15,8 +15,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app .
 
-# Открываем порт 5001
-EXPOSE 5001
+# Открываем порт 5006
+EXPOSE 5006
 
 # Запускаем приложение
-ENTRYPOINT ["dotnet", "VideoAndImgService.dll"]
+ENTRYPOINT ["dotnet", "TitleService.dll"]
