@@ -1,0 +1,313 @@
+main {
+    /* margin-top: 90px; */
+    padding-inline: var(--global-padding);
+    flex-wrap: wrap;
+    display: flex;
+    /* align-items: center; */
+    justify-content: space-between;
+  }
+
+
+.recommends-container {
+    width: 100%;
+    margin-top: var( --block-between-margin);
+    background-color: var(--block-color);
+    border-radius: 10px;
+    height: auto; 
+    overflow: hidden;
+    padding-bottom: 3px;
+    padding-inline: var(--in-block-padding);
+}
+
+.recommend-anime-list {
+    margin-top: 5px;
+    display: grid; /* Размещаем элементы в строку */
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    width: 100%;
+    overflow: hidden;
+    gap: 20px; 
+}
+
+.anime-link {
+    overflow: hidden;            /* Скрывает лишний текст */
+    text-overflow: ellipsis;     /* Заменяет обрезанный текст на три точки */
+    white-space: nowrap;    
+    /* text-shadow: 1px 1px 2px #000; */
+    text-shadow: none;
+    color: var(--link-color);
+}
+
+.anime-description-container {
+    padding-left: 15px;
+    text-overflow: ellipsis;     /* Заменяет обрезанный текст на три точки */
+}
+
+
+.translated-name {
+    text-shadow: none;
+    font-size: medium;
+}
+
+.recommend-poster-img {    
+    border-radius: 5px;
+    /* height: 224px; */
+    width: 100%;
+}
+
+.recommend-anime-list {
+    width: 100%;
+}
+
+
+.container-title {    
+    padding-top: 3px;
+    color: black;
+    /* color: #F4F4F4; */
+    text-shadow: none;
+    /* text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); Легкая тень для контраста */
+}
+
+.actual-container {
+    margin-top: var( --block-between-margin);
+    height: 306px;
+    background-color: var(--block-color);
+    width: 100%;
+    border-radius: 10px;
+    /* padding-inline: 20px; */
+
+}
+
+.actual-description-container {
+margin-left: 10px;
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.actual-grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(min(230px, 45%), 1fr));
+    /* grid-template-columns: repeat(auto-fill, minmax(256px, 1fr)); */
+    padding-top: 7px;
+    grid-template-rows: 104px;
+    column-gap: 15px;
+    row-gap: 45px;
+    display: grid;
+}
+
+.actual-title {
+    /* font-size: min(15px, 2.75vw); */
+    white-space: normal;
+    overflow-wrap: break-word;
+    line-height: 1.2;
+    /* white-space: wrap; */
+    /* color: var(--link-color); */
+    /* margin-left: 10px; */
+    display: -webkit-box;
+  -webkit-line-clamp: 2; /* Количество строк */
+  -webkit-box-orient: vertical;
+    /* height: 50px; */
+    /* font-size: small; */
+    overflow: hidden;
+
+}
+
+.actual-anime-elem {
+    display: flex;
+    align-items: center; /* Выравнивает по вертикали по центру */
+
+    overflow: hidden;
+}
+
+/* .ongoing-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+} */
+
+.ongoing-description-container {
+    /* flex: 1;                   */
+    font-size: medium;
+    overflow: hidden;       /* 🔒 ограничим переполнение */
+
+    /* max-width: 100%; */
+    padding-left: 10px;
+}
+
+
+.ongoing-title {
+    color: var(--link-color);
+    overflow: hidden;            /* Скрывает лишний текст */
+    text-overflow: ellipsis;  
+    white-space: nowrap;
+}
+
+.type-text {
+    line-height: 1;
+    text-decoration: none;
+}
+
+.format {
+    margin-bottom: 3px;
+}
+
+.actual-poster-img{
+    border-radius: 5px;
+    object-fit: cover;
+    height: 104px;
+    width: 104px;
+    flex-shrink: 0;
+}
+
+.big-anime-container {
+    display: flex;
+    flex-wrap: wrap; /* чтобы блоки переносились на новую строку */
+    justify-content: space-between;
+    padding-inline: 0px;
+    margin-top: var( --block-between-margin);
+}
+
+.big-list {
+    border-radius: 10px;
+    background-color: var(--block-color);
+    width: 40vw;
+    flex-grow: 1;
+    height: auto;
+    padding-inline: var(--in-block-padding);
+    /* padding-top: 5px; */
+}
+
+.big-list-elem-container {
+    margin-top: 20px;
+    max-height: 215px;
+    overflow: hidden;
+    display: flex;
+}
+
+.big-list-poster-img {
+    width: min(150px, 35vw);
+    flex-shrink: 0;
+}
+
+
+.story-description {
+    font-weight: 400;
+    margin-top: 5px;
+    /* font-size: small; */
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ongoings-container {
+    max-width: 27vw;
+    /* padding-right: 10px;
+    padding-left: var(--in-block-padding); */
+    width: min(220px, 24vw);
+    padding-bottom: 10px;
+    /* text-align: center; */
+    padding-top: 5px;
+    border-radius: 10px;
+    padding-left: 12px;
+    max-height: 600px;
+    margin-left: var( --block-between-margin);
+    background-color: var(--block-color);
+}
+
+.ongoings-title {
+    text-align: center;
+}
+
+.ongoing-elem-container {
+    margin-top: 15px;
+    display: flex;
+}
+
+.ongoing-poster-img {
+    width: min(56px, 13vw);
+    height: min(56px, 13vw);
+    border-radius: 28px;
+    flex-shrink: 0; /* 🔒 запрещаем сжимать */
+
+}
+
+.actual-type {
+    font-weight: 400;
+}
+
+.series-number {
+    font-weight: 400;
+}
+
+@media(max-width: 760px) {
+    .big-anime-container{
+        padding-inline: 0px;
+    }
+    .ongoings-container {
+        padding-left: var(--in-block-padding);
+        /* padding-left: 20px; */
+        order: -1;
+        margin-left: 0;
+        flex-basis: 100%;
+        max-width: 100%;
+    }
+
+    .ongoings-title {
+        text-align: left;
+
+    }
+    
+    .big-list {
+        margin-top: var(--block-between-margin);
+    }
+}
+
+@media(max-width: 660px) {
+
+    .actual-poster-img {
+        width: 15vw;
+        height: 15vw;
+    }
+    .actual-grid-container {
+        grid-template-rows: auto, auto;
+        row-gap: min(66px, 8vw);
+    }
+    .actual-container {
+        height: auto;
+        padding-bottom: 15px;
+    }
+    .actual-description-container {
+        font-size: min(2.5vw, 13px);
+    }
+
+    .type {
+        font-size: min(2vw, smaller);
+    }
+
+    .description {
+        flex-wrap: wrap;
+    }
+
+    .actual-anime-elem {
+        height: auto;
+    }
+}
+
+
+@media(max-width: 470px) {
+    :root {
+        --in-block-padding: 14px;
+    }
+    .recommend-anime-list {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 14px; 
+    }
+    .recommends-container {
+        /* padding-inline: 14px; */
+    }
+    .actual-container {
+        /* padding-inline: 14px; */
+    }
+}
