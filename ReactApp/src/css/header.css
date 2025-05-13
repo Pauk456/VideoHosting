@@ -1,0 +1,329 @@
+@font-face {
+    font-family: Jaro;
+    src: url(/fonts/Jaro-Regular.woff2) format("woff2");
+    font-weight: 400;
+
+}
+
+@font-face {
+    font-family: RobotoMono;
+    src: url(/fonts/RobotoMono-Regular.woff2) format("woff2");
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Rubik';
+    src: url('/fonts/Rubik/Rubik-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Rubik';
+    src: url('/fonts/Rubik/Rubik-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Rubik';
+    src: url('/fonts/Rubik/Rubik-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Rubik';
+    src: url('/fonts/Rubik/Rubik-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+
+
+:root {
+  --global-padding: min(150px, 8vw);
+  /*--block-color: #E7DFF0;*/
+    --block-color:  #E9EBEE;
+  /*  --block-color:  #dedede;*/
+
+    --in-block-padding: 20px;
+  --background-color: #606370;
+    /*background-color: #6D6F76;*/
+
+  /* --background-color: #624A3B; */
+  /* --header-color: #C6A9C6; */
+  /* --header-color: #E25454 ; */
+  /* --header-color: #BB1E48; */
+  /* --header-color: #FF7E52; */
+  --header-color: #E83739;
+
+  /* --header-color: #807B8B; */
+  --link-color: #FF4A1C;
+  --block-between-margin: min(16px, 2vw);
+}
+
+body {
+    font-family: Rubik;
+    font-weight: 500;
+    font-size: min(20px, 3.25vw);
+    /* text-shadow: 
+    -0.25px -0.25px 0 black,
+    0.25px -0.25px 0 black,
+    -0.25px 0.25px 0 black,
+    0.25px 0.25px 0 black; */
+    
+    /* padding-inline: min(80px, 6vw); */
+    /* background-image: url(../images/phoenix.jpg); */
+    background-size: cover; /* масштабировать по размеру экрана */
+    background-position: center; /* выровнять по центру */
+    background-repeat: no-repeat; /* не повторять */
+    background-attachment: fixed; /* Закрепляет фон */
+
+    background-color: var(--background-color);
+}
+
+.container-title-text {
+
+  font-size: min(19px, 3.5vw);
+}
+
+.elem-text-big {
+  font-size: min(17px, 3.25vw);
+}
+
+.elem-text-medium {
+  font-size: min(14.7px, 2.8vw);
+}
+
+.regular-font-weight {
+    font-weight: 400;
+}
+
+.elem-text-small {
+  /*font-weight: 400;*/
+  font-size: min(13px, 2.3vw);
+}
+
+.elem-text-extrasmall {
+    /*font-weight: 500;*/
+
+    font-size: min(11px, 2vw);
+}
+
+
+.title {
+  display: block; 
+  margin-left: 15px;
+}
+
+header {
+  /* position: fixed;
+top: 0;
+left: 0;
+  z-index: 100%;  */
+
+  width: 100%;
+    height: 56px;
+    box-sizing: border-box;  /* Включаем padding в ширину */
+    display: flex;
+    align-items: center;
+    /* display: flex;
+    align-items: center;
+    justify-content: space-between; */
+    background-color: var(--header-color);
+
+    border-bottom: 4px solid #0C3444;
+    /* border-bottom: 4px solid #B7CE63; */
+    /* border-bottom: 4px solid    #879301    ; */
+
+    padding-inline: var(--global-padding);
+}
+
+.search-input {
+  width: 14vw;
+  margin-right: 15px;
+  display: none;
+}
+
+.underline {
+  height: 4px;
+  width: 100%;
+  background-color: var(--link-color);
+}
+
+
+.container {
+  width: 100%;
+  box-sizing: border-box; 
+  max-width: 1200px; 
+  padding-inline: var(--in-block-padding);
+  margin-inline: auto;
+}
+
+.header-container {
+  display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+.search-container {
+    position: relative;
+}
+
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.dropdown-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-dropdown-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.search-dropdown-item {
+    display: flex;
+    height: auto;
+    background: #f5f5f5;
+}
+
+.search-text {
+    margin-left: 10px;
+}
+
+.search-icon {
+    height: 84px;
+    width: 84px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.dropdown-item:hover {
+    background: #f5f5f5;
+}
+
+
+.logo {
+    font-family:  "Jaro";
+    text-shadow: 
+    -0.25px -0.25px 0 black,
+    0.25px -0.25px 0 black,
+    -0.25px 0.25px 0 black,
+    0.25px 0.25px 0 black;
+    font-size: min(30px, 5vw);
+
+}
+
+a {
+    text-decoration: none;
+    text-underline-offset: 5px; /* Смещаем подчеркивание ниже */
+    color: black;
+}
+
+a.logo:hover {
+    text-decoration: none; /* Подчеркивание при наведении */
+}
+
+
+.header-auth-list {
+    display: flex;
+    column-gap: min(20px, 2.5vw);
+  }
+  
+.search-container {
+  margin-left: auto;
+  margin-right: 35px;
+    display: flex;
+    align-items: center;
+}
+
+.header-search-button {
+  background-image: url("/images/search_button.png");
+  background-size: cover; /* Масштабирование */
+  display: block; /* Делаем элемент видимым */
+
+
+  width: 36px;
+  height: 36px;
+  }
+  
+  /* .header-search-button:hover {
+    background-color: black;
+    color: #EED5F5; 
+  } */
+
+
+
+  .header-auth-button {
+    align-items: center;
+  }
+
+  .auth-button-icon {
+    background-image: url("/images/avatar256.png");
+    background-size: cover; /* Масштабирование */
+    /* filter: grayscale(100%); */
+    margin-right: 10px; /* Отступ между иконкой и текстом */
+
+    width: 39px;
+    height: 39px;
+  }
+
+.hover-effect {
+    /* Начальные стили */
+    transform: scale(1);
+    transition: all 0.3s ease-in-out;
+
+    /* Дополнительные свойства для плавности */
+    will-change: transform, background-color;
+}
+
+.hover-effect:hover {
+    /* Изменение масштаба и цвета */
+    transform: scale(0.97);
+    background-color: #D6D7DA;
+    border-radius: 5px;
+    /* Дополнительные эффекты при наведении (опционально) */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+
+  /* .header-auth-link {
+    display: inline-flex;
+    align-items: center;
+    height: 70px;
+    letter-spacing: 1.2;
+  } */
+
+@media(max-width: 470px) {
+  header {
+    flex-wrap: wrap;
+  }
+
+  .header-auth-list {
+    display: none;
+  }  
+}
