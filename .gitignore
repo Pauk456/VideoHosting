@@ -15,6 +15,7 @@ x64/
 [Oo]bj/
 
 /front/video/
+
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
@@ -87,6 +88,7 @@ csx/
 # Windows Store app package directory
 AppPackages/
 
+.idea/
 # Others
 sql/
 *.Cache

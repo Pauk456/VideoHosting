@@ -33,7 +33,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const defaultOption = document.createElement("option");
         defaultOption.textContent = "Серия";
-        defaultOption.disabled = true;
         defaultOption.selected = true;
         episodeSelect.appendChild(defaultOption);
         if (selectedSeason) {
@@ -58,7 +57,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const videoPlayer = document.getElementsByClassName("video-player")[0];
 
         videoPlayer.src = videoUrl;
-        videoPlayer.load();
+        videoPlayer.load(); // пер
       });
 
       // Инициализация первой серии
@@ -71,3 +70,51 @@ window.addEventListener("DOMContentLoaded", () => {
     // Например:
     // document.getElementById("app").innerHTML = `<h1>Аниме: ${slug}</h1>`;
   });
+
+
+  document.querySelector('.comment-button').addEventListener('click', function() {
+    const searchInput = document.querySelector('.input-comment');
+    const button = this; // Используем this вместо повторного поиска
+    if (button.textContent === 'Отправить') {
+      const ul = document.querySelector('.comments-list-container')
+      const li = document.createElement('li');
+      const divComment = document.createElement('div');
+      divComment.className = 'comment';
+
+      const userAvatar = document.createElement('div');
+      userAvatar.className = "user-avatar";
+      const textCommentContainer = document.createElement('div')
+     textCommentContainer.className ='text-comment-container';
+
+      const userName = document.createElement('p');
+      userName.className = 'elem-text-medium';
+      const commentText = document.createElement('p');
+      commentText.className = 'comment-text elem-text-extrasmall';
+      commentText.textContent = searchInput.value;
+      searchInput.value = "";
+      userName.textContent = "Anonimous";
+      textCommentContainer.appendChild(userName);
+      textCommentContainer.appendChild(commentText);
+      divComment.appendChild(userAvatar);
+      divComment.appendChild(textCommentContainer);
+
+      li.appendChild(divComment);
+      console.log(li);
+      ul.insertBefore(li, ul.firstChild);
+      // ul.appendChild(li);
+      searchInput.style.display = 'none'; // Скрываем поле
+      button.textContent = "Написать комментарий";
+
+    }
+    else {
+      button.textContent = "Отправить";
+      console.log(searchInput)
+      if (searchInput.style.display === 'none' || !searchInput.style.display) {
+          searchInput.style.display = 'block'; // Показываем поле
+      } else {
+          searchInput.style.display = 'none'; // Скрываем поле
+      }
+  }
+
+    // searchInput.style.display = 'block';
+});
