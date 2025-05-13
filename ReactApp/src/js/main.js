@@ -1,6 +1,42 @@
-function resizeSliderContainer() {
-    const poster = document.querySelector('.poster-elem');
-    const posterContainer = document.querySelector('.poster-list'); // Контейнер сетки
+// https://4affaaed-6fc4-46c1-ad30-b085d8124025.mock.pstmn.io/test
+
+// function fetchRecommendations() {
+    
+//     fetch('http://localhost:5006/api/title/all') // замените на реальный адрес API
+//         .then(response => response.json())
+//         .then(data => {
+//             console.log(data);
+//             const list1 = document.getElementsByClassName('recommend-anime-list');
+//             console.log(list1);
+//             const list = document.getElementsByClassName('recommend-anime-list')[0];
+//             console.log(list);
+//             list.innerHTML = ''; // очистка перед добавлением
+
+//             data.forEach(anime => {
+//                 const li = document.createElement('li');
+//                 li.className = 'recommend-anime-elem';
+
+//                 li.innerHTML = `
+//                     <a href="./html/video.html?id=${anime.seriesId}">
+//                         <img class="recommend-poster-img" src="http://localhost:5001/api/img/${anime.seriesId}" alt="">
+//                         <p class="recommend-anime-link anime-link">${anime.name}</p>
+//                     </a>
+//                 `;
+
+//                 list.appendChild(li);
+//             });
+//         })
+//         .catch(err => console.error("Ошибка при загрузке рекомендаций:", err));
+// }
+
+
+
+function resizeRecommendContainer() {
+    const poster = document.querySelector('.recommend-anime-elem');
+    console.log(poster);
+    const posterContainer = document.querySelector('.recommend-anime-list'); // Контейнер сетки
+    console.log(posterContainer);
+
     const containerStyle = window.getComputedStyle(posterContainer);
     const posterStyle = window.getComputedStyle(poster);
 
@@ -19,7 +55,7 @@ function resizeSliderContainer() {
 
     console.log(containerWidth, posterWidth);
 
-    var items = document.querySelectorAll(".poster-elem");
+    var items = document.querySelectorAll(".recommend-anime-elem");
     items.forEach((item, index) => {
         const rowIndex = Math.floor(index / cols); // Определяем на какой строке находится элемент
 
@@ -35,7 +71,7 @@ function resizeSliderContainer() {
 
 
 function resizeActualContainer() {
-    const gridElem = document.querySelector('.anime-elem');
+    const gridElem = document.querySelector('.actual-anime-elem');
     const actualGridContainer = document.querySelector('.actual-grid-container'); // Контейнер сетки
     const containerStyle = window.getComputedStyle(actualGridContainer);
     const elemStyle = window.getComputedStyle(gridElem);
@@ -48,12 +84,12 @@ function resizeActualContainer() {
     // console.log(containerWidth, posterWidth, gap);
 
     // Рассчитываем количество колонок, с учетом ширины постера и отступов
-    console.log("SMALL COLS: "+ containerWidth / elemWidth);
+    //console.log("SMALL COLS: "+ containerWidth / elemWidth);
     const cols = Math.round((containerWidth + gap) / (elemWidth + gap));
         
 
-    var items = document.querySelectorAll(".anime-elem");
-    console.log("SMALL COLS: " + cols);
+    var items = document.querySelectorAll(".actual-anime-elem");
+   // console.log("SMALL COLS: " + cols);
     items.forEach((item, index) => {
         if (index >= cols * 2) {
             item.style.display = 'none';
@@ -73,23 +109,25 @@ function resizeActualContainer() {
 }
 
 // Запуск при загрузке страницы
-document.addEventListener('DOMContentLoaded', resizeSliderContainer);
+document.addEventListener('DOMContentLoaded', resizeRecommendContainer);
 
 // И/или при изменении размера окна
-window.addEventListener('resize', resizeSliderContainer);
+window.addEventListener('resize', resizeRecommendContainer);
 
 document.addEventListener('DOMContentLoaded', resizeActualContainer);
 
 window.addEventListener('resize', resizeActualContainer);
+// document.addEventListener('DOMContentLoaded', fetchRecommendations);
 
-document.querySelector('.header-search-button').addEventListener('click', function() {
-    const searchInput = document.querySelector('.search-input');
-    console.log(searchInput)
-    if (searchInput.style.display === 'none' || !searchInput.style.display) {
-        searchInput.style.display = 'block'; // Показываем поле
-    } else {
-        searchInput.style.display = 'none'; // Скрываем поле
-    }
 
-    // searchInput.style.display = 'block';
-});
+// document.querySelector('.header-search-button').addEventListener('click', function() {
+//     const searchInput = document.querySelector('.search-input');
+//     console.log(searchInput)
+//     if (searchInput.style.display === 'none' || !searchInput.style.display) {
+//         searchInput.style.display = 'block'; // Показываем поле
+//     } else {
+//         searchInput.style.display = 'none'; // Скрываем поле
+//     }
+
+//     // searchInput.style.display = 'block';
+// });
