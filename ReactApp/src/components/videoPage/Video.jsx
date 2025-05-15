@@ -1,51 +1,53 @@
 // src/components/videoPage/Video.jsx
 import React, {useEffect, useRef, useState} from 'react';
-import Hls from 'hls.js';
 
-const Video = ({ host, seriesList}) => {
+const Video = ({seasons}) => {
+    const initialSeason = seasons?.[0]?.seasonNumber || null;
+
     const videoRef = useRef(null);
     const episodeKeys = Object.keys(seriesList);
     // По умолчанию первая серия
-    const [selectedEpisode, setSelectedEpisode] = useState(episodeKeys[0]);
+    const [selectedSeason, setSelectedSeason] = useState(initialSeason);
+    const [episodeList, setEpisodeList] = useState(
+        seasons?.find(s => s.seasonNumber === initialSeason)?.episodes || []
+    );
 
-    const hlsData = seriesList[selectedEpisode]?.hls || {};
-    const selectedPath =
-        hlsData.fhd || hlsData.hd || hlsData.sd || '';
+    const initialEpisode = episodeList?.[0]?.episodeNumber || null;
+    const [selectedEpisode, setSelectedEpisode] = useState(initialEpisode);
+    // const [selectedEpisode, setSelectedEpisode] = useState(episodeKeys[0]);
 
-    // Полный URL
-    const src = selectedPath
-        ? `https://${host}${selectedPath}`
-        : '';
     useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
+        const seasonData = seasons.find(s => s.seasonNumber === selectedSeason);
+        const episodes = seasonData?.episodes || [];
+        setEpisodeList(episodes);
+        setSelectedEpisode(episodes[0]?.episodeNumber || null);
+    }, [selectedSeason, seasons]);
 
-        // Если браузер нативно поддерживает HLS (Safari), просто ставим src
-        if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = src;
-        } else if (Hls.isSupported()) {
-            // Для остальных создаём HLS-плеер
-            const hls = new Hls();
-            hls.loadSource(src);
-            hls.attachMedia(video);
-            // Очистка при анмаунте
-            return () => {
-                hls.destroy();
-            };
-        } else {
-            console.error('HLS не поддерживается в этом браузере');
+    const selectedEpisodeObj = episodeList.find(e => e.episodeNumber === selectedEpisode);
+    const selectedEpisodeId = selectedEpisodeObj?.id || null;
+
+    useEffect(() => {
+        if (selectedEpisodeId && videoRef.current) {
+            videoRef.current.src = `http://localhost:5001/api/video/${selectedEpisodeId}`;
+            videoRef.current.load();
         }
-    }, [src]);
+    }, [selectedEpisodeId]);
 
     return (
         <div className="video-container container">
             <div className="list-container elem-text-big">
-                <select id="season">
-                    <option>Сезон</option>
+                <select id="season"
+                    value={selectedSeason}
+                    onChange={e => setSelectedSeason(parseInt(e.target.value, 10))}>
+                    {seasons.map(s => (
+                        <option key={s.seasonNumber} value={s.seasonNumber}>
+                            Сезон {s.seasonNumber}
+                        </option>
+                    ))}
                 </select>
                 <select id="episode"
                         value={selectedEpisode}
-                        onChange={e => setSelectedEpisode(e.target.value)}>
+                        onChange={e => setSelectedEpisode(parseInt(e.target.value, 10))}>
                     {episodeKeys.map(key => (
                         <option key={key} value={key}>
                             Серия {key}
