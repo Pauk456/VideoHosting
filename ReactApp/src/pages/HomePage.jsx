@@ -1,13 +1,8 @@
 import { useState } from 'react'
 import '../css/main.css'
 import Header from "../components/header/Header.jsx";
-import RecommendAnime from "../components/mainPage/RecommendAnime.jsx";
-import ActualAnime from "../components/mainPage/ActualAnime.jsx";
-import GetRecommends from "../scripts/GetRecommends.jsx";
-import OngoingElem from "../components/mainPage/OngoingElem.jsx";
-import BigListElem from "../components/mainPage/BigListElem.jsx";
+
 import ResizeRecommends from "../scripts/ResizeRecommends.jsx";
-import GetActual from "../scripts/GetActual.jsx";
 import GetBigList from "../scripts/GetBigList.jsx";
 import GetOngoings from "../scripts/GetOngoings.jsx";
 import ResizeActual from "../scripts/ResizeActual.jsx";
