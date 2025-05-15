@@ -112,7 +112,7 @@ const VideoPage = () => {
                     <p className={"elem-text-small big-description-text"}>"В процессе"</p>
                 </div>}
 
-                <Video seriesList={animeData.player.list}/>
+                <Video seasons={animeData.seasons}/>
                 <div className="comments-container container">
                     <p className="comments-container-title container-title-text">Комментарии</p>
                     {isInputVisible && <textarea className="input-comment elem-text-small regular-font-weight"
