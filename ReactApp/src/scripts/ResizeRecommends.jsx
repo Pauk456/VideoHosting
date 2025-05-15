@@ -1,5 +1,4 @@
 import React, {useEffect, useRef, useState} from 'react';
-import GetRecommends from "./GetRecommends.jsx";
 import RecommendAnime from "../components/mainPage/RecommendAnime.jsx";
 
 const ResizeRecommends = () => {
@@ -13,9 +12,9 @@ const ResizeRecommends = () => {
     const [cols, setCols] = useState(0);
 
     useEffect(() => {
-        fetch(`https://api.anilibria.tv/v3/title/list?id_list=${idList.join(",")}&filter=names.ru,id,posters.original.url`)
+        fetch(`http://localhost:5006/api/title/all`)
             .then(res => res.json())
-            .then(setAnimes)
+            .then(animes => setAnimes(animes));
     }, []);
 
     // измеряем при монтировании и на ресайзе
@@ -41,7 +40,7 @@ const ResizeRecommends = () => {
     return (
         <ul className="recommend-anime-list" ref={containerRef}>
                 {animes.slice(0, cols).map((anime) => (
-                    <RecommendAnime animeInfo={{title: anime.names.ru, imgUrl: `https://anilibria.tv/${anime.posters.original.url}`, id: anime.id}} />
+                    <RecommendAnime animeInfo={{title: anime.name, imgUrl: `http://localhost:5001/api/img/${anime.seriesId}`, id: anime.seriesId}} />
                 ))}
         </ul>
     );

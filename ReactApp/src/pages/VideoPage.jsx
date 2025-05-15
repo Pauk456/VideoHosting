@@ -26,11 +26,21 @@ const VideoPage = () => {
     const buttonLabel = isInputVisible ? 'Отправить' : 'Написать комментарий';
 
     useEffect(() => {
-        fetch(`https://api.anilibria.tv/v3/title?id=${id}&filter=names.ru,description,season.year,posters.original.url,player.host,player.list`)
+        fetch(`http://localhost:5006/api/title/getAnimeName/${id}`)
             .then(res => res.json())
-            .then(data => {console.log(data);
-                setAnimeData(data)})
+            .then(data => {
+                const name = data.name;
+                return Promise.all(
+                    fetch(`http://localhost:5006/api/title/getSeasonsAndEpisodes/${id}`)
+                        .then(res => res.json())
+                        .then(data => ({
+                            name: name,
+                            seasons: data
+                        }))
+                )
 
+            })
+            .then(data => setAnimeData(data))
     }, [id]);
 
     useEffect(() => {
@@ -78,9 +88,6 @@ const VideoPage = () => {
             </div>
         );
     }
-
-    const host = animeData.player.host;
-    const listObj = animeData.player.list;
     // const eps1 = listObj["1"];           // найдёт свойство "1"
     // const url = eps1.hls.hd;            // достанет нужный URL
     return (
@@ -88,24 +95,24 @@ const VideoPage = () => {
            < Header />
             <main>
                 <div className="description-container container">
-                    <img className="poster-img" src={`https://anilibria.tv/${animeData.posters.original.url}`} alt=""/>
+                    <img className="poster-img" src={`http://localhost:5001/api/img/${id}`} alt=""/>
                     <div className="description">
-                        <p className="container-title-text" id="title">{animeData.names.ru}</p>
+                        <p className="container-title-text" id="title">{animeData.name}</p>
 
                         <ul className="description-list">
                             < DescriptionLi name = "Студия" value = "2x2"/>
-                            < DescriptionLi name = "Год выпуска" value = {animeData.season.year}/>
+                            < DescriptionLi name = "Год выпуска" value = "2025"/>
                             < DescriptionLi name = "Жанры" value = "Детектив, Историческое, Романтика"/>
-                            {!showBigDescription && < DescriptionLi name = "Описание" value = {animeData.description}/>}
+                            {!showBigDescription && < DescriptionLi name = "Описание" value = "В процессе"/>}
                         </ul>
                     </div>
                 </div>
                 {showBigDescription && <div className={"second-description-container container"}>
                     <p className="elem-text-medium big-description-container-title">Описание</p>
-                    <p className={"elem-text-small big-description-text"}>{animeData.description}</p>
+                    <p className={"elem-text-small big-description-text"}>"В процессе"</p>
                 </div>}
 
-                <Video host={host} seriesList={animeData.player.list}/>
+                <Video seriesList={animeData.player.list}/>
                 <div className="comments-container container">
                     <p className="comments-container-title container-title-text">Комментарии</p>
                     {isInputVisible && <textarea className="input-comment elem-text-small regular-font-weight"
