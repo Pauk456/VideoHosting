@@ -1,6 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import GetRecommends from "./GetRecommends.jsx";
-import RecommendAnime from "../components/mainPage/RecommendAnime.jsx";
+
 import ActualAnime from "../components/mainPage/ActualAnime.jsx";
 
 const ResizeRecommends = () => {
@@ -14,7 +13,7 @@ const ResizeRecommends = () => {
     const [cols, setCols] = useState(idList.length);
 
     useEffect(() => {
-        fetch(`https://api.anilibria.tv/v3/title/list?id_list=${idList.join(",")}&filter=names.ru,id,posters.medium.url,type.string,type.episodes`)
+        fetch(`http://localhost:5006/api/title/all`)
             .then(res => res.json())
             .then(setAnimes)
     }, []);
@@ -42,7 +41,7 @@ const ResizeRecommends = () => {
     return (
         <div className="actual-grid-container" ref={containerRef}>
             {animes.slice(0, cols * 2).map((anime) => (
-                <ActualAnime animeInfo={{title: anime.names.ru, imgUrl: `https://anilibria.tv/${anime.posters.medium.url}`, id: anime.id, type : anime.type.string, episodes: anime.type.episodes}} />
+                <ActualAnime animeInfo={{title: anime.name, imgUrl: `http://localhost:5001/api/img/${anime.seriesId}`, id: anime.seriesId, type : "tv", episodes: 12}} />
             ))}
         </div>
     );
