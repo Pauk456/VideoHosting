@@ -67,6 +67,37 @@ public class TitleController : Controller
         return response;
     }
 
+    [HttpGet("getAnimeName/{id}")]
+    public String GetAnimeName(int id)
+    {
+        foreach (var item in _context.AnimeSeries)
+        {
+            if (item.Id == id)
+            {
+                return item.Title;
+            }
+        }
+        return "";
+    }
+
+    [HttpGet("getRecentEpisodes")]
+    public async Task<List<NewEpisodeData>> GetRecentEpisodes()
+    {
+        var episodes = await _context.Episodes
+            .OrderByDescending(e => e.Id) 
+            .Take(4)
+            .ToListAsync();
+
+        var response = new List<NewEpisodeData>();
+        foreach (var item in episodes)
+        {
+            var season = await _context.Seasons.FindAsync(item.SeasonId);
+            response.Add(new NewEpisodeData(item.EpisodeNumber, season?.SeriesId ?? 0));
+        }
+
+        return response;
+    }
+
     [HttpPost("addSeries")]
     public int SetSeries(AnimeSeriesDto seriesDto)
     {

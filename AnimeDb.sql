@@ -5,7 +5,7 @@
 -- Dumped from database version 17.2
 -- Dumped by pg_dump version 17.2
 
--- Started on 2025-05-08 18:37:25
+-- Started on 2025-05-15 21:25:06
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -22,6 +22,19 @@ SET row_security = off;
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
+
+--
+-- TOC entry 223 (class 1259 OID 16914)
+-- Name: __EFMigrationsHistory; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public."__EFMigrationsHistory" OWNER TO postgres;
 
 --
 -- TOC entry 218 (class 1259 OID 16635)
@@ -54,7 +67,7 @@ CREATE SEQUENCE public.anime_series_id_seq
 ALTER SEQUENCE public.anime_series_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4872 (class 0 OID 0)
+-- TOC entry 4879 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: anime_series_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -94,7 +107,7 @@ CREATE SEQUENCE public.episodes_id_seq
 ALTER SEQUENCE public.episodes_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4873 (class 0 OID 0)
+-- TOC entry 4880 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: episodes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -133,7 +146,7 @@ CREATE SEQUENCE public.seasons_id_seq
 ALTER SEQUENCE public.seasons_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4874 (class 0 OID 0)
+-- TOC entry 4881 (class 0 OID 0)
 -- Dependencies: 219
 -- Name: seasons_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -142,7 +155,7 @@ ALTER SEQUENCE public.seasons_id_seq OWNED BY public.seasons.id;
 
 
 --
--- TOC entry 4705 (class 2604 OID 16638)
+-- TOC entry 4709 (class 2604 OID 16638)
 -- Name: anime_series id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -150,7 +163,7 @@ ALTER TABLE ONLY public.anime_series ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
--- TOC entry 4707 (class 2604 OID 16657)
+-- TOC entry 4711 (class 2604 OID 16657)
 -- Name: episodes id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -158,7 +171,7 @@ ALTER TABLE ONLY public.episodes ALTER COLUMN id SET DEFAULT nextval('public.epi
 
 
 --
--- TOC entry 4706 (class 2604 OID 16645)
+-- TOC entry 4710 (class 2604 OID 16645)
 -- Name: seasons id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -166,19 +179,25 @@ ALTER TABLE ONLY public.seasons ALTER COLUMN id SET DEFAULT nextval('public.seas
 
 
 --
--- TOC entry 4862 (class 0 OID 16635)
+-- TOC entry 4873 (class 0 OID 16914)
+-- Dependencies: 223
+-- Data for Name: __EFMigrationsHistory; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- TOC entry 4868 (class 0 OID 16635)
 -- Dependencies: 218
 -- Data for Name: anime_series; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.anime_series (id, preview_path, title) VALUES (21, 'Videos\gg\naruto.jpg', 'gg');
 INSERT INTO public.anime_series (id, preview_path, title) VALUES (1, 'Videos\naruto\naruto.jpg', 'naruto');
 INSERT INTO public.anime_series (id, preview_path, title) VALUES (2, 'Videos\demon-slayer\demon-slayer.jpg', 'demon-slayer');
-INSERT INTO public.anime_series (id, preview_path, title) VALUES (22, 'Videos\ggggg\naruto.jpg', 'ggggg');
 
 
 --
--- TOC entry 4866 (class 0 OID 16654)
+-- TOC entry 4872 (class 0 OID 16654)
 -- Dependencies: 222
 -- Data for Name: episodes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -190,7 +209,7 @@ INSERT INTO public.episodes (id, season_id, file_path, episode_number) VALUES (7
 
 
 --
--- TOC entry 4864 (class 0 OID 16642)
+-- TOC entry 4870 (class 0 OID 16642)
 -- Dependencies: 220
 -- Data for Name: seasons; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -204,16 +223,16 @@ INSERT INTO public.seasons (id, series_id, season_number) VALUES (8, 2, 3);
 
 
 --
--- TOC entry 4875 (class 0 OID 0)
+-- TOC entry 4882 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: anime_series_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.anime_series_id_seq', 22, true);
+SELECT pg_catalog.setval('public.anime_series_id_seq', 23, true);
 
 
 --
--- TOC entry 4876 (class 0 OID 0)
+-- TOC entry 4883 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: episodes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -222,16 +241,25 @@ SELECT pg_catalog.setval('public.episodes_id_seq', 8, true);
 
 
 --
--- TOC entry 4877 (class 0 OID 0)
+-- TOC entry 4884 (class 0 OID 0)
 -- Dependencies: 219
 -- Name: seasons_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.seasons_id_seq', 8, true);
+SELECT pg_catalog.setval('public.seasons_id_seq', 11, true);
 
 
 --
--- TOC entry 4709 (class 2606 OID 16640)
+-- TOC entry 4719 (class 2606 OID 16918)
+-- Name: __EFMigrationsHistory PK___EFMigrationsHistory; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."__EFMigrationsHistory"
+    ADD CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId");
+
+
+--
+-- TOC entry 4713 (class 2606 OID 16640)
 -- Name: anime_series anime_series_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -240,7 +268,7 @@ ALTER TABLE ONLY public.anime_series
 
 
 --
--- TOC entry 4713 (class 2606 OID 16659)
+-- TOC entry 4717 (class 2606 OID 16659)
 -- Name: episodes episodes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -249,7 +277,7 @@ ALTER TABLE ONLY public.episodes
 
 
 --
--- TOC entry 4711 (class 2606 OID 16647)
+-- TOC entry 4715 (class 2606 OID 16647)
 -- Name: seasons seasons_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -258,7 +286,7 @@ ALTER TABLE ONLY public.seasons
 
 
 --
--- TOC entry 4715 (class 2606 OID 16660)
+-- TOC entry 4721 (class 2606 OID 16660)
 -- Name: episodes episodes_season_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -267,7 +295,7 @@ ALTER TABLE ONLY public.episodes
 
 
 --
--- TOC entry 4714 (class 2606 OID 16648)
+-- TOC entry 4720 (class 2606 OID 16648)
 -- Name: seasons seasons_series_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -275,7 +303,7 @@ ALTER TABLE ONLY public.seasons
     ADD CONSTRAINT seasons_series_id_fkey FOREIGN KEY (series_id) REFERENCES public.anime_series(id) ON DELETE CASCADE;
 
 
--- Completed on 2025-05-08 18:37:26
+-- Completed on 2025-05-15 21:25:06
 
 --
 -- PostgreSQL database dump complete
