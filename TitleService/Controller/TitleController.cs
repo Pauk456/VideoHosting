@@ -68,16 +68,16 @@ public class TitleController : Controller
     }
 
     [HttpGet("getAnimeName/{id}")]
-    public String GetAnimeName(int id)
+    public IActionResult GetAnimeName(int id)
     {
         foreach (var item in _context.AnimeSeries)
         {
             if (item.Id == id)
             {
-                return item.Title;
+                return Json(new { name = item.Title });
             }
         }
-        return "";
+        return Json(new { name = "" });
     }
 
     [HttpGet("getRecentEpisodes")]
