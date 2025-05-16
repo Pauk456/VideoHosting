@@ -26,21 +26,32 @@ const VideoPage = () => {
     const buttonLabel = isInputVisible ? 'Отправить' : 'Написать комментарий';
 
     useEffect(() => {
-        fetch(`http://localhost:5006/api/title/getAnimeName/${id}`)
-            .then(res => res.json())
-            .then(data => {
-                const name = data.name;
-                return Promise.all(
-                    fetch(`http://localhost:5006/api/title/getSeasonsAndEpisodes/${id}`)
-                        .then(res => res.json())
-                        .then(data => ({
-                            name: name,
-                            seasons: data
-                        }))
-                )
-
-            })
-            .then(data => setAnimeData(data))
+        async function fetchAnimeData() {
+            const nameRes = await fetch(`http://localhost:5006/api/title/getAnimeName/${id}`);
+            const nameJson = await nameRes.json();
+            const seasonsRes = await fetch(`http://localhost:5006/api/title/getSeasonsAndEpisodes/${id}`);
+            const seasonsJson = await seasonsRes.json();
+            setAnimeData({
+                name: nameJson.name,
+                seasons: seasonsJson,
+            });
+        }
+        fetchAnimeData();
+        // fetch(`http://localhost:5006/api/title/getAnimeName/${id}`)
+        //     .then(res => res.json())
+        //     .then(data => {
+        //         const name = data.name;
+        //         return Promise.all(
+        //             fetch(`http://localhost:5006/api/title/getSeasonsAndEpisodes/${id}`)
+        //                 .then(res => res.json())
+        //                 .then(data => ({
+        //                     name: name,
+        //                     seasons: data
+        //                 }))
+        //         )
+        //
+        //     })
+        //     .then(data => setAnimeData(data))
     }, [id]);
 
     useEffect(() => {
