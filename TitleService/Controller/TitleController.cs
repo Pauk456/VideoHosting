@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TitleService.Models.DTO;
+using System.Net.Http;
 
 namespace TitleService.Controllers;
 
@@ -18,9 +19,12 @@ public class TitleController : Controller
 {
     private readonly ApplicationDbContext _context;
 
+    private readonly HttpClient _httpClient;
+
     public TitleController(ApplicationDbContext context)
     {
         _context = context;
+        _httpClient = new HttpClient();
     }
 
     // получает всевозможные аниме
@@ -65,6 +69,32 @@ public class TitleController : Controller
             response.Add(new SeasonsData(season.SeasonNumber, episodes));
         }
         return response;
+    }
+
+    //Описантие тайтла
+    [HttpGet("getConfig/{id}")]
+    public async Task<IActionResult> GetConfig(int id)
+    {
+        var series = await _context.AnimeSeries.FindAsync(id);
+
+        var previewPath = series.PreviewPath;
+
+        string directoryPath = previewPath.Substring(0, previewPath.LastIndexOf('\\'));
+
+        var absoluteUri = new Uri(new Uri("http://host.docker.internal:4999"), 
+            $"get-config?filePath={directoryPath}\\titleConfig.json");
+
+        var response = await _httpClient.GetAsync(
+            absoluteUri,
+            HttpCompletionOption.ResponseHeadersRead
+        );
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return StatusCode((int)response.StatusCode);
+        }
+
+        return File(await response.Content.ReadAsStreamAsync(), "application/json");
     }
 
     [HttpGet("getAnimeName/{id}")]
