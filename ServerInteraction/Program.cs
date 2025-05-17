@@ -29,7 +29,22 @@ app.MapGet("/get-structure", (HttpContext context) =>
 
         var seasonsPath = Directory.GetDirectories(animePath);
 
-        animeSeries.PreviewPath = Directory.GetFiles(animePath)[0].Split("D:\\Anime\\")[1];
+        var allFilesInDirectory = Directory.GetFiles(animePath);
+
+        if (allFilesInDirectory.Length != 0)
+        {
+            foreach (var file in allFilesInDirectory)
+            {
+                if (Path.GetExtension(file) == ".jpg")
+                {
+                    animeSeries.PreviewPath = file.Split("D:\\Anime\\")[1];
+                }
+            }
+        }
+        else
+        {
+            animeSeries.PreviewPath = "";
+        }
 
         var seasons = new List<SeasonDto>();
 
@@ -76,6 +91,29 @@ app.MapGet("/get-structure", (HttpContext context) =>
 
 //вынесу в контроллер если не будет лень
 app.MapGet("/get-img", async (HttpContext context, string filePath) =>
+{
+    var basePath = @"D:\Anime";
+    var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath));
+
+    if (!fullPath.StartsWith(basePath))
+    {
+        context.Response.StatusCode = 403;
+        await context.Response.WriteAsync("Access denied");
+        return;
+    }
+    if (!File.Exists(fullPath))
+    {
+        context.Response.StatusCode = 404;
+        await context.Response.WriteAsync("File not found");
+        return;
+    }
+
+    await using var fullFileStream = File.OpenRead(fullPath);
+    await fullFileStream.CopyToAsync(context.Response.Body);
+
+});
+
+app.MapGet("/get-config", async (HttpContext context, string filePath) =>
 {
     var basePath = @"D:\Anime";
     var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath));
