@@ -84,6 +84,18 @@ public class TitleRecommendationController : Controller
         await _context.SaveChangesAsync();
 		return Ok($"Запись с ID {idTitle} успешно удалена.");
     }
+
+	[HttpGet("getReview")]
+	public async Task<ActionResult<TitleRatingData>> GetReview([FromBody] int idTitle)
+	{
+		var titleRating = await _context.TitleRatings
+			.FirstOrDefaultAsync(tr => tr.IdTitle == idTitle);
+		if (titleRating == null)
+		{
+            return NotFound($"Запись с ID {idTitle} не найдена.");
+        }
+		return Ok(titleRating);
+	}
 }
 
 
