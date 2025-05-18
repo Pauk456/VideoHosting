@@ -20,7 +20,7 @@ public class GatewayController : Controller
     }
 
     [HttpPost("videos/search")]
-    public async Task<ActionResult<VideoData>> GetVideosBySearch([FromBody] VideoSearchDTO filter)
+    public async Task<ActionResult<SearchResultDTO>> GetVideosBySearch([FromBody] VideoSearchDTO filter)
     {
         throw new NotImplementedException();
     }
