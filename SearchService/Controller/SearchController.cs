@@ -19,8 +19,22 @@ public class SearchController : Controller
     [HttpGet("test")]
     public string Test()
     {
-        var item = _contex.SearchData.Find(1); // Ищем по idSearch
-        return item?.TitleTag ?? "таблица не найдена или запись пустая";
+        try
+        {
+            var item = _contex.SearchData.Find(1); // Ищем по idSearch
+
+            if (item == null)
+            {
+                return "Тестовый ответ: запись с id=1 не найдена";
+            }
+
+            return item.TitleTag ?? "Запись найдена, но TitleTag пустой";
+        }
+        catch (Exception ex)
+        {
+            // На случай ошибок подключения к БД
+            return $"Ошибка при проверке: {ex.Message}";
+        }
     }
 
     [HttpPost("getTitleBySearchTag")]
@@ -44,6 +58,25 @@ public class SearchController : Controller
         return Ok(searchItem.TitleId);
     }
 
+    [HttpDelete("deleteTitle/{TitleId}")]
+    public async Task<ActionResult> DeleteTitle(int TitleId)
+    {
+        try
+        {
+            await _contex.Database.ExecuteSqlRawAsync(
+                "DELETE FROM searchData WHERE title_id = {0}",
+                TitleId
+            );
+
+            Console.WriteLine($"Удалил Title: {TitleId}");
+            return Ok("Succes post in search service");
+        }
+        catch
+        {
+            return BadRequest("Error in post int search service");
+        }
+    }
+
     [HttpPost("postTitle")]
     public async Task<ActionResult> PostTitle([FromBody] TitleDTO request)
     {
@@ -58,6 +91,7 @@ public class SearchController : Controller
                 "INSERT INTO searchData (title_id, title_tag) VALUES ({0}, {1})",
                 request.TitleId, request.TitleName
             );
+            Console.WriteLine($"Добавил новый Title: {request.TitleName}");
             return Ok("Succes post in search service");
         }
         catch
