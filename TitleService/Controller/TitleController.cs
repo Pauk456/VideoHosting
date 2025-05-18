@@ -129,164 +129,165 @@ public class TitleController : Controller
     }
 
     [HttpPost("addSeries")]
-    public int SetSeries(AnimeSeriesDto seriesDto)
+    public async Task<ActionResult<int>> AddSeries(AnimeSeriesDto seriesDto)
     {
-        var newSeries = new AnimeSeries
+        try
         {
-            Title = seriesDto.Title,
-            PreviewPath = seriesDto.PreviewPath ?? string.Empty,
-            Seasons = new List<Season>()
-        };
-
-        _context.AnimeSeries.Add(newSeries);
-
-        _context.SaveChangesAsync();
-
-        int newId = 0;
-        foreach (var item in _context.AnimeSeries)
-        {
-            if (item.Title == seriesDto.Title)
+            var newSeries = new AnimeSeries
             {
-                newId = item.Id;
-                break;
-            }
+                Title = seriesDto.Title,
+                PreviewPath = seriesDto.PreviewPath ?? string.Empty,
+                Seasons = new List<Season>()
+            };
+
+            await _context.AnimeSeries.AddAsync(newSeries);
+            await _context.SaveChangesAsync();
+
+            return Ok(newSeries.Id); // Возвращаем ID сразу после сохранения
         }
-
-        Console.WriteLine(newId);
-
-        return newId;
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Внутренняя ошибка сервера");
+        }
     }
 
     [HttpPost("addSeason")]
-    public int AddSeason(AddedSeason seasonDto)
+    public async Task<ActionResult<int>> AddSeason(AddedSeason seasonDto)
     {
-        var newSeason = new Season
+        try
         {
-            SeasonNumber = seasonDto.SeasonNumber,
-            SeriesId = seasonDto.SeriesId,
-            Episodes = new List<Episode>()
-        };
-
-
-        _context.Seasons.Add(newSeason);
-
-        _context.SaveChangesAsync();
-
-        int newId = 0;
-        foreach (var item in _context.Seasons)
-        {
-            if(item.SeasonNumber == seasonDto.SeasonNumber)
+            // Проверяем существование сериала
+            var seriesExists = await _context.AnimeSeries.AnyAsync(s => s.Id == seasonDto.SeriesId);
+            if (!seriesExists)
             {
-                if (item.SeriesId == seasonDto.SeriesId)
-                {
-                    newId = item.Id;
-                    break;
-                }
+                return NotFound($"Сериал с ID {seasonDto.SeriesId} не найден");
             }
+
+            var newSeason = new Season
+            {
+                SeasonNumber = seasonDto.SeasonNumber,
+                SeriesId = seasonDto.SeriesId,
+                Episodes = new List<Episode>()
+            };
+
+            await _context.Seasons.AddAsync(newSeason);
+            await _context.SaveChangesAsync();
+
+            return Ok(newSeason.Id);
         }
-
-        Console.WriteLine("id сезона" + newId);
-
-        Console.WriteLine("номер сезона" + seasonDto.SeasonNumber);
-
-        return newId;
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Внутренняя ошибка сервера");
+        }
     }
 
     [HttpPost("addEpisode")]
-    public int AddEpisode(AddedEpisode episodeDto)
+    public async Task<ActionResult<int>> AddEpisode(AddedEpisode episodeDto)
     {
-        var newEpisode = new Episode
+        try
         {
-            EpisodeNumber = episodeDto.EpisodeNumber,
-            FilePath = episodeDto.FilePath,
-            SeasonId = episodeDto.SeasonId
-        };
-
-        _context.Episodes.Add(newEpisode);
-        _context.SaveChanges();
-
-        int newId = 0;
-        foreach (var item in _context.Episodes)
-        {
-            if (item.EpisodeNumber == episodeDto.EpisodeNumber && item.SeasonId == episodeDto.SeasonId)
+            // Проверяем существование сезона
+            var seasonExists = await _context.Seasons.AnyAsync(s => s.Id == episodeDto.SeasonId);
+            if (!seasonExists)
             {
-                newId = item.Id;
-                break;
+                return NotFound($"Сезон с ID {episodeDto.SeasonId} не найден");
             }
+
+            var newEpisode = new Episode
+            {
+                EpisodeNumber = episodeDto.EpisodeNumber,
+                FilePath = episodeDto.FilePath,
+                SeasonId = episodeDto.SeasonId
+            };
+
+            await _context.Episodes.AddAsync(newEpisode);
+            await _context.SaveChangesAsync();
+
+            return Ok(newEpisode.Id);
         }
-
-        Console.WriteLine($"ID эпизода: {newId}");
-        Console.WriteLine($"Номер эпизода: {episodeDto.EpisodeNumber}");
-        Console.WriteLine($"ID сезона: {episodeDto.SeasonId}");
-
-        return newId;
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Внутренняя ошибка сервера");
+        }
     }
 
     [HttpDelete("deleteSeries/{seriesId}")]
     public async Task<IActionResult> DeleteSeries(int seriesId)
     {
-        var series = await _context.AnimeSeries
-            .Include(s => s.Seasons)
-            .ThenInclude(s => s.Episodes)
-            .FirstOrDefaultAsync(s => s.Id == seriesId);
-
-        if (series == null)
+        try
         {
-            return NotFound($"Series with ID {seriesId} not found");
-        }
+            var series = await _context.AnimeSeries
+                .Include(s => s.Seasons)
+                .ThenInclude(s => s.Episodes)
+                .FirstOrDefaultAsync(s => s.Id == seriesId);
 
-        // Удаляем все связанные эпизоды, затем сезоны, и наконец саму серию
-        foreach (var season in series.Seasons)
+            if (series == null)
+            {
+                return NotFound($"Сериал с ID {seriesId} не найден");
+            }
+
+            _context.Episodes.RemoveRange(series.Seasons.SelectMany(s => s.Episodes));
+            _context.Seasons.RemoveRange(series.Seasons);
+            _context.AnimeSeries.Remove(series);
+
+            await _context.SaveChangesAsync();
+
+            return Ok($"Сериал с ID {seriesId} и все связанные данные удалены");
+        }
+        catch (Exception ex)
         {
-            _context.Episodes.RemoveRange(season.Episodes);
+            return StatusCode(500, "Внутренняя ошибка сервера");
         }
-
-        _context.Seasons.RemoveRange(series.Seasons);
-        _context.AnimeSeries.Remove(series);
-
-        await _context.SaveChangesAsync();
-
-        Console.WriteLine($"Deleted series with ID: {seriesId}");
-        return Ok($"Series with ID {seriesId} and all related seasons/episodes deleted successfully");
     }
 
     [HttpDelete("deleteSeason/{seasonId}")]
     public async Task<IActionResult> DeleteSeason(int seasonId)
     {
-        var season = await _context.Seasons
-            .Include(s => s.Episodes)
-            .FirstOrDefaultAsync(s => s.Id == seasonId);
-
-        if (season == null)
+        try
         {
-            return NotFound($"Season with ID {seasonId} not found");
+            var season = await _context.Seasons
+                .Include(s => s.Episodes)
+                .FirstOrDefaultAsync(s => s.Id == seasonId);
+
+            if (season == null)
+            {
+                return NotFound($"Сезон с ID {seasonId} не найден");
+            }
+
+            _context.Episodes.RemoveRange(season.Episodes);
+            _context.Seasons.Remove(season);
+
+            await _context.SaveChangesAsync();
+
+            return Ok($"Сезон с ID {seasonId} и все эпизоды удалены");
         }
-
-        // Удаляем все связанные эпизоды, затем сам сезон
-        _context.Episodes.RemoveRange(season.Episodes);
-        _context.Seasons.Remove(season);
-
-        await _context.SaveChangesAsync();
-
-        Console.WriteLine($"Deleted season with ID: {seasonId}");
-        return Ok($"Season with ID {seasonId} and all related episodes deleted successfully");
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Внутренняя ошибка сервера");
+        }
     }
 
     [HttpDelete("deleteEpisode/{episodeId}")]
     public async Task<IActionResult> DeleteEpisode(int episodeId)
     {
-        var episode = await _context.Episodes.FindAsync(episodeId);
-
-        if (episode == null)
+        try
         {
-            return NotFound($"Episode with ID {episodeId} not found");
+            var episode = await _context.Episodes.FindAsync(episodeId);
+
+            if (episode == null)
+            {
+                return NotFound($"Эпизод с ID {episodeId} не найден");
+            }
+
+            _context.Episodes.Remove(episode);
+            await _context.SaveChangesAsync();
+
+            return Ok($"Эпизод с ID {episodeId} удален");
         }
-
-        _context.Episodes.Remove(episode);
-        await _context.SaveChangesAsync();
-
-        Console.WriteLine($"Deleted episode with ID: {episodeId}");
-        return Ok($"Episode with ID {episodeId} deleted successfully");
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Внутренняя ошибка сервера");
+        }
     }
 
     //тут мб лучше titleid и seasonsid и seriesid передавать через FormBody
