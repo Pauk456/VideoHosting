@@ -19,7 +19,7 @@ public class FileStructureUpdateService : BackgroundService
 
     public FileStructureUpdateService(
         IServiceProvider serviceProvider,
-        ILogger<FileStructureUpdateService> logger) // Внедрение логгера
+        ILogger<FileStructureUpdateService> logger) //логгерование чтобы понять почему эта фигня не работает
     {
         _serviceProvider = serviceProvider;
         _httpClient = new HttpClient();
@@ -28,8 +28,6 @@ public class FileStructureUpdateService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Сервис обновления структуры файлов запущен.");
-
         while (!stoppingToken.IsCancellationRequested)
         {
             _logger.LogInformation("Начало нового цикла обновления...");
@@ -39,7 +37,6 @@ public class FileStructureUpdateService : BackgroundService
                 using var scope = _serviceProvider.CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-                // Логируем запрос к серверу
                 _logger.LogInformation($"Запрос структуры файлов: {uriServerInteraction}/get-structure");
                 var response = await _httpClient.GetAsync(uriServerInteraction + "/get-structure", stoppingToken);
 
@@ -71,7 +68,7 @@ public class FileStructureUpdateService : BackgroundService
                 _logger.LogError(ex, "Неизвестная ошибка в основном цикле.");
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+            await Task.Delay(30000, stoppingToken);
         }
     }
 
@@ -96,14 +93,17 @@ public class FileStructureUpdateService : BackgroundService
                 var deleteTitleResponse = await _httpClient.DeleteAsync($"{uriTitleService}/deleteSeries/{series.Id}");
                 _logger.LogInformation($"Микросервис TitleService. Статус удаления: {deleteTitleResponse.StatusCode}");
 
-                // Удаление в микросервисе Игоря
-                var content = new StringContent(JsonSerializer.Serialize(series.Id), Encoding.UTF8, "application/json");
-                var deleteRecommendationResponse = await _httpClient.PostAsync($"{uriRecommendationService}/deleteTitle", content);
-                _logger.LogInformation($"Микросервис RecommendationService. Статус удаления: {deleteRecommendationResponse.StatusCode}");
 
+                //ОСТАВИТЬ ВАЖНО
+                // Удаление в микросервисе Игоря
+                //var content = new StringContent(JsonSerializer.Serialize(series.Id), Encoding.UTF8, "application/json");
+                //var deleteRecommendationResponse = await _httpClient.PostAsync($"{uriRecommendationService}/deleteTitle", content);
+                //_logger.LogInformation($"Микросервис RecommendationService. Статус удаления: {deleteRecommendationResponse.StatusCode}");
+
+                //ОСТАВИТЬ ВАЖНО
                 // Удаление в микросервисе Вовы
-                var deleteSearchResponse = await _httpClient.DeleteAsync($"{uriSearchService}/deleteTitle/{series.Id}");
-                _logger.LogInformation($"Микросервис SearchService. Статус удаления: {deleteSearchResponse.StatusCode}");
+                //var deleteSearchResponse = await _httpClient.DeleteAsync($"{uriSearchService}/deleteTitle/{series.Id}");
+                //_logger.LogInformation($"Микросервис SearchService. Статус удаления: {deleteSearchResponse.StatusCode}");
 
                 continue;
             }
@@ -146,7 +146,7 @@ public class FileStructureUpdateService : BackgroundService
 
         foreach (var seriesDto in receivedSeries)
         {
-            _logger.LogInformation($"Обработка сериала: {seriesDto.Title}");
+            _logger.LogInformation($"\x1b[36mОбработка сериала: {seriesDto.Title}\x1b[0m");
 
             var existingSeries = await dbContext.AnimeSeries
                 .Include(s => s.Seasons)
@@ -187,14 +187,17 @@ public class FileStructureUpdateService : BackgroundService
                 var data = new { idTitle = seriesId };
                 var json = JsonSerializer.Serialize(data);
                 var strContent = new StringContent(json, Encoding.UTF8, "application/json");
-                var recommendationServiceResponse = await _httpClient.PostAsync(uriRecommendationService + "/addNewTitle", strContent);
 
-                _logger.LogInformation($"Ответ от RecommendationService: {recommendationServiceResponse.StatusCode}");
-                if (recommendationServiceResponse.IsSuccessStatusCode)
-                {
-                    var responseBody = await recommendationServiceResponse.Content.ReadAsStringAsync();
-                    _logger.LogInformation(responseBody);
-                }
+                //ОСТАВИТЬ ВАЖНО
+                //var recommendationServiceResponse = await _httpClient.PostAsync(uriRecommendationService + "/addNewTitle", strContent);
+
+                //_logger.LogInformation($"Ответ от RecommendationService: {recommendationServiceResponse.StatusCode}");
+                //if (recommendationServiceResponse.IsSuccessStatusCode)
+                //{
+                //    var responseBody = await recommendationServiceResponse.Content.ReadAsStringAsync();
+                //    _logger.LogInformation(responseBody);
+                //}
+
 
                 // Отправка в SearchService
                 var titleDto = new TitleDTO
@@ -203,28 +206,30 @@ public class FileStructureUpdateService : BackgroundService
                     TitleId = seriesId
                 };
                 string searchServiceJsonString = JsonSerializer.Serialize(titleDto);
-                var searchServiceContent = new StringContent(searchServiceJsonString, Encoding.UTF8, "application/json");
 
-                try
-                {
-                    var response = await _httpClient.PostAsync(uriSearchService + "/postTitle", searchServiceContent);
-                    _logger.LogInformation($"Ответ от SearchService: {response.StatusCode}");
+                //ОСТАВИТЬ ВАЖНО
+                //var searchServiceContent = new StringContent(searchServiceJsonString, Encoding.UTF8, "application/json");
 
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string responseBody = await response.Content.ReadAsStringAsync();
-                        _logger.LogInformation($"Успех: {responseBody}");
-                    }
-                    else
-                    {
-                        string errorResponse = await response.Content.ReadAsStringAsync();
-                        _logger.LogError($"Ошибка: {response.StatusCode} - {errorResponse}");
-                    }
-                }
-                catch (HttpRequestException ex)
-                {
-                    _logger.LogError(ex, "Ошибка HTTP при обращении к SearchService");
-                }
+                //try
+                //{
+                //    var response = await _httpClient.PostAsync(uriSearchService + "/postTitle", searchServiceContent);
+                //    _logger.LogInformation($"Ответ от SearchService: {response.StatusCode}");
+
+                //    if (response.IsSuccessStatusCode)
+                //    {
+                //        string responseBody = await response.Content.ReadAsStringAsync();
+                //        _logger.LogInformation($"Успех: {responseBody}");
+                //    }
+                //    else
+                //    {
+                //        string errorResponse = await response.Content.ReadAsStringAsync();
+                //        _logger.LogError($"Ошибка: {response.StatusCode} - {errorResponse}");
+                //    }
+                //}
+                //catch (HttpRequestException ex)
+                //{
+                //    _logger.LogError(ex, "Ошибка HTTP при обращении к SearchService");
+                //}
 
                 var newSeries = dbContext.AnimeSeries.Find(seriesId);
                 await ProcessSeasons(dbContext, newSeries, seriesDto.Seasons);
@@ -253,99 +258,100 @@ public class FileStructureUpdateService : BackgroundService
         {
             _logger.LogInformation($"Проверка сезона {seasonDto.SeasonNumber}");
 
-            var existingSeason = series.Seasons
-                .FirstOrDefault(s => s.SeasonNumber == seasonDto.SeasonNumber);
+            var existingSeason = await dbContext.Seasons
+                .Include(s => s.Episodes)
+                .FirstOrDefaultAsync(s =>
+                    s.SeasonNumber == seasonDto.SeasonNumber &&
+                    s.SeriesId == series.Id);
 
             if (existingSeason == null)
             {
                 _logger.LogInformation($"Добавление нового сезона {seasonDto.SeasonNumber}");
 
-                var addedSeason = new AddedSeason
-                {
-                    SeasonNumber = seasonDto.SeasonNumber,
-                    SeriesId = series.Id
-                };
-
-                string jsonString = JsonSerializer.Serialize<AddedSeason>(addedSeason);
-                var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-                var responseMessage = await _httpClient.PostAsync(uriTitleService + "/addSeason", content);
-
-                if (!responseMessage.IsSuccessStatusCode)
-                {
-                    _logger.LogError($"Ошибка при добавлении сезона. StatusCode: {responseMessage.StatusCode}");
-                    continue;
-                }
-
-                string responseString = await responseMessage.Content.ReadAsStringAsync();
-                _logger.LogInformation($"Ответ от TitleService: {responseString}");
-
-                int seasonId = 0;
-                if (int.TryParse(responseString, out int result))
-                {
-                    seasonId = result;
-                    _logger.LogInformation($"Сезону присвоен ID: {seasonId}");
-                }
-                else
-                {
-                    _logger.LogError("Не удалось распарсить ID сезона.");
-                    continue;
-                }
-
-                var newSeason = dbContext.Seasons.Find(seasonId);
-                ProcessEpisodes(newSeason, seasonDto.Episodes);
-            }
-            else
-            {
-                _logger.LogInformation($"Сезон {seasonDto.SeasonNumber} уже существует. Обновление эпизодов...");
-                ProcessEpisodes(existingSeason, seasonDto.Episodes);
-            }
-        }
-    }
-
-    private void ProcessEpisodes(Season season, List<EpisodeDto> episodeDtos)
-    {
-        _logger.LogInformation($"Обработка эпизодов для сезона {season.SeasonNumber} (ID: {season.Id})");
-
-        foreach (var episodeDto in episodeDtos)
-        {
-            _logger.LogInformation($"Проверка эпизода {episodeDto.EpisodeNumber}");
-
-            var existingEpisode = season.Episodes
-                .FirstOrDefault(e => e.EpisodeNumber == episodeDto.EpisodeNumber);
-
-            if (existingEpisode == null)
-            {
-                _logger.LogInformation($"Добавление нового эпизода {episodeDto.EpisodeNumber}");
-
-                var newEpisode = new AddedEpisode
-                {
-                    EpisodeNumber = episodeDto.EpisodeNumber,
-                    FilePath = episodeDto.FilePath,
-                    SeasonId = season.Id
-                };
-
-                string jsonString = JsonSerializer.Serialize<AddedEpisode>(newEpisode);
-                var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-
                 try
                 {
-                    var responseMessage = _httpClient.PostAsync(uriTitleService + "/addEpisode", content).Result;
-                    _logger.LogInformation($"Ответ от TitleService: {responseMessage.StatusCode}");
+                    var addedSeason = new AddedSeason
+                    {
+                        SeasonNumber = seasonDto.SeasonNumber,
+                        SeriesId = series.Id
+                    };
+
+                    var content = new StringContent(JsonSerializer.Serialize(addedSeason),
+                        Encoding.UTF8, "application/json");
+
+                    var response = await _httpClient.PostAsync($"{uriTitleService}/addSeason", content);
+                    response.EnsureSuccessStatusCode();
+
+                    var seasonId = int.Parse(await response.Content.ReadAsStringAsync());
+                    _logger.LogInformation($"Добавлен сезон ID: {seasonId}");
+
+                    var newSeason = await dbContext.Seasons
+                        .Include(s => s.Episodes)
+                        .FirstOrDefaultAsync(s => s.Id == seasonId);
+
+                    await ProcessEpisodes(dbContext, newSeason, seasonDto.Episodes);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Ошибка при добавлении эпизода");
+                    _logger.LogError(ex, $"Ошибка при добавлении сезона {seasonDto.SeasonNumber}");
+                    continue;
                 }
             }
             else
             {
-                _logger.LogInformation($"Эпизод {episodeDto.EpisodeNumber} уже существует. Обновление FilePath...");
-                existingEpisode.FilePath = episodeDto.FilePath;
+                await ProcessEpisodes(dbContext, existingSeason, seasonDto.Episodes);
             }
         }
     }
 
-public class AnimeSeriesDto
+    private async Task ProcessEpisodes(ApplicationDbContext dbContext, Season season, List<EpisodeDto> episodeDtos)
+    {
+        _logger.LogInformation($"Обработка эпизодов для сезона {season.SeasonNumber}");
+
+        foreach (var episodeDto in episodeDtos)
+        {
+            var existingEpisode = await dbContext.Episodes
+                .FirstOrDefaultAsync(e =>
+                    e.EpisodeNumber == episodeDto.EpisodeNumber &&
+                    e.SeasonId == season.Id);
+
+            if (existingEpisode == null)
+            {
+                _logger.LogInformation($"Добавление эпизода {episodeDto.EpisodeNumber}");
+
+                try
+                {
+                    var newEpisode = new AddedEpisode
+                    {
+                        EpisodeNumber = episodeDto.EpisodeNumber,
+                        FilePath = episodeDto.FilePath,
+                        SeasonId = season.Id
+                    };
+
+                    var content = new StringContent(JsonSerializer.Serialize(newEpisode),
+                        Encoding.UTF8, "application/json");
+
+                    var response = await _httpClient.PostAsync($"{uriTitleService}/addEpisode", content);
+                    response.EnsureSuccessStatusCode();
+
+                    var episodeId = int.Parse(await response.Content.ReadAsStringAsync());
+                    _logger.LogInformation($"Добавлен эпизод ID: {episodeId}");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Ошибка при добавлении эпизода {episodeDto.EpisodeNumber}");
+                }
+            }
+            else if (existingEpisode.FilePath != episodeDto.FilePath)
+            {
+                existingEpisode.FilePath = episodeDto.FilePath;
+                await dbContext.SaveChangesAsync();
+                _logger.LogInformation($"Обновлен путь к файлу для эпизода {episodeDto.EpisodeNumber}");
+            }
+        }
+    }
+
+    public class AnimeSeriesDto
     {
         [JsonPropertyName("title")]
         public string Title { get; set; } = string.Empty;
