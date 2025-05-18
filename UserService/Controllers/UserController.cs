@@ -135,7 +135,7 @@ public class UserController : Controller
         }
         userAnime.Status = anime.Status;
         await _context.SaveChangesAsync();
-        return Ok("Статус обновлен");
+        return Ok("Стату обновлен");
     }
 
     [HttpPost("DeleteAnime")]
