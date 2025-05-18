@@ -5,7 +5,6 @@ const Video = ({seasons}) => {
     const initialSeason = seasons?.[0]?.seasonNumber || null;
 
     const videoRef = useRef(null);
-    const episodeKeys = Object.keys(seriesList);
     // По умолчанию первая серия
     const [selectedSeason, setSelectedSeason] = useState(initialSeason);
     const [episodeList, setEpisodeList] = useState(
@@ -48,9 +47,9 @@ const Video = ({seasons}) => {
                 <select id="episode"
                         value={selectedEpisode}
                         onChange={e => setSelectedEpisode(parseInt(e.target.value, 10))}>
-                    {episodeKeys.map(key => (
-                        <option key={key} value={key}>
-                            Серия {key}
+                    {seasons.map(key => (
+                        <option key={key.id} value={key.episodeNumber}>
+                            Серия {key.episodeNumber}
                         </option>
                     ))}
                 </select>
