@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  frontend:
+    image: frontend
+    build:
+      context: ./ReactApp 
+    ports:
+      - "3000:3000"      
+    environment:
+      - HOST=0.0.0.0      
+      - PORT=3000
+    depends_on:
+      - gatewayservice
+
   view:
     image: view
     build:
@@ -40,6 +52,79 @@ services:
       - "5006:5006"
     depends_on:
       - db
+  
+  searchdb:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: SearchData
+    volumes:
+      - ./SearchData.sql:/docker-entrypoint-initdb.d/00-backup.sql
+      - pg_search_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+      
+  searchservice:
+    image: searchservice
+    build:
+      context: ./searchservice
+    ports:
+      - "5003:5003"
+    depends_on:
+      - searchdb
+ 
+  gatewayservice:
+    image: gateway
+    build:
+      context: ./gatewayservice
+    ports:
+      - "5004:5004"
+    depends_on:
+      - titleservice
+      - videoservice
+  
+  Dbtitlerecommendationservice:
+     image: postgres:17
+     environment:
+         POSTGRES_USER: postgres
+         POSTGRES_PASSWORD: 1234
+         POSTGRES_DB: TitleRating
+     volumes:
+         - ./TitleRecommendationData.sql:/docker-entrypoint-initdb.d/00-backup.sql
+         - pg_title_recommendation_data:/var/lib/postgresql/data
+     ports:
+         - "5434:5432"
+
+  titlerecommendationservice:
+    image: titlerecommendation
+    build:
+        context: ./titlerecommendationservice
+    ports:
+       - "5007:5007"
+    depends_on:
+       - Dbtitlerecommendationservice
+
+  dbuserservice:
+     image: postgres:17
+     environment:
+         POSTGRES_USER: postgres
+         POSTGRES_PASSWORD: 1234
+         POSTGRES_DB: UserService
+     volumes:
+         - ./UserServiceData.sql:/docker-entrypoint-initdb.d/00-backup.sql
+         - pg_user_data:/var/lib/postgresql/data
+     ports:
+         - "5435:5432"
+
+  userservice:
+    image: userservice
+    build:
+        context: ./userservice
+    ports:
+       - "5002:5002"
+    depends_on:
+       - dbuserservice
 
   dbupdater:
     image: dbupdater
@@ -53,3 +138,6 @@ services:
 
 volumes:
   pg_data:
+  pg_search_data:
+  pg_title_recommendation_data:  
+  pg_user_data:  
