@@ -13,7 +13,6 @@ const VideoPage = () => {
     const [animeData, setAnimeData] = useState(null);
     const [showBigDescription, setShowBigDescription] = useState(false);
 
-
     const [comments, setComments] = useState([
         { username: "Гигачад", text: "ГОЙДА!" },
         { username: "ТраВоМаН", text: "Мои стримы лучше" },
@@ -31,9 +30,12 @@ const VideoPage = () => {
             const nameJson = await nameRes.json();
             const seasonsRes = await fetch(`http://localhost:5006/api/title/getSeasonsAndEpisodes/${id}`);
             const seasonsJson = await seasonsRes.json();
+            const config = await fetch(`http://localhost:5006/api/title/getConfig/${id}`);
+            const configJson = await config.json();
             setAnimeData({
-                name: nameJson.name,
+                name: nameJson?.name || "Атака титанов",
                 seasons: seasonsJson,
+                config: configJson,
             });
         }
         fetchAnimeData();
@@ -111,19 +113,19 @@ const VideoPage = () => {
                         <p className="container-title-text" id="title">{animeData.name}</p>
 
                         <ul className="description-list">
-                            < DescriptionLi name = "Студия" value = "2x2"/>
-                            < DescriptionLi name = "Год выпуска" value = "2025"/>
-                            < DescriptionLi name = "Жанры" value = "Детектив, Историческое, Романтика"/>
-                            {!showBigDescription && < DescriptionLi name = "Описание" value = "В процессе"/>}
+                            < DescriptionLi name = "Студия" value = {animeData?.config?.studio}/>
+                            < DescriptionLi name = "Год выпуска" value = {animeData?.config?.year}/>
+                            < DescriptionLi name = "Жанры" value = {animeData?.config?.genres}/>
+                            {!showBigDescription && < DescriptionLi name = "Описание" value = {animeData?.config?.description}/>}
                         </ul>
                     </div>
                 </div>
                 {showBigDescription && <div className={"second-description-container container"}>
                     <p className="elem-text-medium big-description-container-title">Описание</p>
-                    <p className={"elem-text-small big-description-text"}>"В процессе"</p>
+                    <p className={"elem-text-small big-description-text"}>{animeData?.config?.description}</p>
                 </div>}
 
-                <Video seasons={animeData.seasons}/>
+                <Video seasons={animeData.seasons} timing={animeData?.config?.timing}/>
                 <div className="comments-container container">
                     <p className="comments-container-title container-title-text">Комментарии</p>
                     {isInputVisible && <textarea className="input-comment elem-text-small regular-font-weight"

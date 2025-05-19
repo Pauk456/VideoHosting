@@ -6,15 +6,32 @@ const GetRecommends = () => {
     const [animes, setAnimes] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:5006/api/title/all')
-            .then(res => res.json())
-            .then(data => setAnimes(data))
+        async function fetchAnimeData() {
+            const animeList = await fetch('http://localhost:5006/api/title/all')
+                .then(res => res.json());
+            const animeData = await Promise.all(
+                animeList.map(async anime => {
+                    const cfg = await fetch(`http://localhost:5006/api/title/getConfig/${anime.id}`)
+                        .then(res => res.json());
+                    return {
+                        id: anime?.id,
+                        name: anime?.name,           // если есть поле name
+                        description: cfg?.description,
+                        year: cfg?.year,
+                        studio: cfg?.year,
 
+                    };
+                })
+            );
+            setAnimes(animeData);
+
+        }
+        fetchAnimeData();
     }, []);
 
     return (
         animes.map((anime) => (
-            <BigListElem animeInfo={{title: anime.name, titleEng: "Not available", imgUrl: `http://localhost:5001/api/img/${anime.id}`, id: anime.id, description: "Очень крутое аниме, да-да"}} />
+            <BigListElem animeInfo={{title: anime.name, year: anime.year, imgUrl: `http://localhost:5001/api/img/${anime.id}`, id: anime.id, description: anime.description}} />
         ))
     );
 };

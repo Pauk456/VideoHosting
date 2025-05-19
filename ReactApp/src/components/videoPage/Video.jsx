@@ -1,7 +1,7 @@
 // src/components/videoPage/Video.jsx
 import React, {useEffect, useRef, useState} from 'react';
 
-const Video = ({seasons}) => {
+const Video = ({seasons, timing}) => {
     const initialSeason = seasons?.[0]?.seasonNumber || null;
 
     const videoRef = useRef(null);
@@ -15,6 +15,38 @@ const Video = ({seasons}) => {
     const [selectedEpisode, setSelectedEpisode] = useState(initialEpisode);
     // const [selectedEpisode, setSelectedEpisode] = useState(episodeKeys[0]);
 
+
+    const skipOpening = () => {
+        if (videoRef.current) {
+            videoRef.current.currentTime = timing.end;
+            videoRef.current.play();
+        }
+    };
+
+    useEffect(() => {
+        const vid = videoRef.current;
+        if (!vid) return;
+
+        const onEnded = () => {
+            // ищем индекс текущего эпизода в списке
+            const cur = episodeList.find(e => e.episodeNumber === selectedEpisode);
+            const next = episodeList.find(e => e.episodeNumber === cur.episodeNumber + 1);
+
+            // если есть следующий эпизод в этом сезоне
+            if (cur && next) {
+                setSelectedEpisode(next.episodeNumber);
+            } else {
+                // опционально: переход на следующий сезон или остановка
+                console.log('Серия последняя в сезоне');
+            }
+        };
+
+        vid.addEventListener('ended', onEnded);
+        return () => {
+            vid.removeEventListener('ended', onEnded);
+        };
+    }, [selectedEpisode, episodeList]);
+
     useEffect(() => {
         const seasonData = seasons.find(s => s.seasonNumber === selectedSeason);
         const episodes = seasonData?.episodes || [];
@@ -22,15 +54,15 @@ const Video = ({seasons}) => {
         setSelectedEpisode(episodes[0]?.episodeNumber || null);
     }, [selectedSeason, seasons]);
 
-    const selectedEpisodeObj = episodeList.find(e => e.episodeNumber === selectedEpisode);
-    const selectedEpisodeId = selectedEpisodeObj?.id || null;
-
     useEffect(() => {
+        const selectedEpisodeObj = episodeList.find(e => e.episodeNumber === selectedEpisode);
+        const selectedEpisodeId = selectedEpisodeObj?.id || null;
+
         if (selectedEpisodeId && videoRef.current) {
             videoRef.current.src = `http://localhost:5001/api/video/${selectedEpisodeId}`;
             videoRef.current.load();
         }
-    }, [selectedEpisodeId]);
+    }, [selectedEpisode]);
 
     return (
         <div className="video-container container">
@@ -54,12 +86,36 @@ const Video = ({seasons}) => {
                     ))}
                 </select>
             </div>
-            <video
-                ref={videoRef}
-                className="video-player"
-                controls
-                style={{ width: '100%', height: 'auto' }}
-            />
+            <div className="video-wrapper" style={{ position: 'relative', width: '100%' }}>
+
+                <video
+                    ref={videoRef}
+                    className="video-player"
+                    controls
+                    style={{ width: '100%', height: 'auto' }}
+
+                />
+                {videoRef.current.currentTime > timing.start && (
+                    <button
+                        onClick={skipOpening}
+                        className="skip-button"
+                        style={{
+                            position: 'absolute',
+                            top: '10px',
+                            right: '10px',
+                            padding: '8px 12px',
+                            zIndex: 2,
+                            background: 'rgba(0,0,0,0.5)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Пропустить
+                    </button>
+                )}
+            </div>
         </div>
     );
 };
