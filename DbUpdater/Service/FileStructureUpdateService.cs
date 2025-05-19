@@ -12,10 +12,10 @@ public class FileStructureUpdateService : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private readonly HttpClient _httpClient;
     private readonly ILogger<FileStructureUpdateService> _logger; // Добавлен логгер
+
     private readonly string uriTitleService = "http://titleservice:5006/api/title";
+    private readonly string uriGateWayService = "http://gatewayservice:5004/api";
     private readonly string uriServerInteraction = "http://host.docker.internal:4999";
-    private readonly string uriRecommendationService = "http://recommendationservice:5007/controller";
-    private readonly string uriSearchService = "http://searchservice:5000";
 
     public FileStructureUpdateService(
         IServiceProvider serviceProvider,
@@ -87,23 +87,11 @@ public class FileStructureUpdateService : BackgroundService
         {
             if (!receivedTitles.Contains(series.Title))
             {
+
+                var deleteResponse = await _httpClient.DeleteAsync($"{uriGateWayService}/deleteSeries/{series.Id}");
+                deleteResponse.EnsureSuccessStatusCode();
+
                 _logger.LogInformation($"Удаление сериала: {series.Title} (ID: {series.Id})");
-
-                // Удаление в микросервисе Димы
-                var deleteTitleResponse = await _httpClient.DeleteAsync($"{uriTitleService}/deleteSeries/{series.Id}");
-                _logger.LogInformation($"Микросервис TitleService. Статус удаления: {deleteTitleResponse.StatusCode}");
-
-
-                //ОСТАВИТЬ ВАЖНО
-                // Удаление в микросервисе Игоря
-                //var content = new StringContent(JsonSerializer.Serialize(series.Id), Encoding.UTF8, "application/json");
-                //var deleteRecommendationResponse = await _httpClient.PostAsync($"{uriRecommendationService}/deleteTitle", content);
-                //_logger.LogInformation($"Микросервис RecommendationService. Статус удаления: {deleteRecommendationResponse.StatusCode}");
-
-                //ОСТАВИТЬ ВАЖНО
-                // Удаление в микросервисе Вовы
-                //var deleteSearchResponse = await _httpClient.DeleteAsync($"{uriSearchService}/deleteTitle/{series.Id}");
-                //_logger.LogInformation($"Микросервис SearchService. Статус удаления: {deleteSearchResponse.StatusCode}");
 
                 continue;
             }
@@ -157,10 +145,9 @@ public class FileStructureUpdateService : BackgroundService
             {
                 _logger.LogInformation($"Добавление нового сериала: {seriesDto.Title}");
 
-                // Отправка в TitleService
                 string jsonString = JsonSerializer.Serialize<AnimeSeriesDto>(seriesDto);
                 var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-                var responseMessage = await _httpClient.PostAsync(uriTitleService + "/addSeries", content);
+                var responseMessage = await _httpClient.PostAsync(uriGateWayService + "/addTitle", content);
 
                 if (!responseMessage.IsSuccessStatusCode)
                 {
@@ -168,68 +155,14 @@ public class FileStructureUpdateService : BackgroundService
                     continue;
                 }
 
+
                 string responseString = await responseMessage.Content.ReadAsStringAsync();
-                _logger.LogInformation($"Ответ от TitleService: {responseString}");
 
                 int seriesId = 0;
                 if (int.TryParse(responseString, out int result))
                 {
                     seriesId = result;
-                    _logger.LogInformation($"Сериалу присвоен ID: {seriesId}");
                 }
-                else
-                {
-                    _logger.LogError("Не удалось распарсить ID сериала.");
-                    continue;
-                }
-
-                // Отправка в RecommendationService
-                var data = new { idTitle = seriesId };
-                var json = JsonSerializer.Serialize(data);
-                var strContent = new StringContent(json, Encoding.UTF8, "application/json");
-
-                //ОСТАВИТЬ ВАЖНО
-                //var recommendationServiceResponse = await _httpClient.PostAsync(uriRecommendationService + "/addNewTitle", strContent);
-
-                //_logger.LogInformation($"Ответ от RecommendationService: {recommendationServiceResponse.StatusCode}");
-                //if (recommendationServiceResponse.IsSuccessStatusCode)
-                //{
-                //    var responseBody = await recommendationServiceResponse.Content.ReadAsStringAsync();
-                //    _logger.LogInformation(responseBody);
-                //}
-
-
-                // Отправка в SearchService
-                var titleDto = new TitleDTO
-                {
-                    TitleName = seriesDto.Title,
-                    TitleId = seriesId
-                };
-                string searchServiceJsonString = JsonSerializer.Serialize(titleDto);
-
-                //ОСТАВИТЬ ВАЖНО
-                //var searchServiceContent = new StringContent(searchServiceJsonString, Encoding.UTF8, "application/json");
-
-                //try
-                //{
-                //    var response = await _httpClient.PostAsync(uriSearchService + "/postTitle", searchServiceContent);
-                //    _logger.LogInformation($"Ответ от SearchService: {response.StatusCode}");
-
-                //    if (response.IsSuccessStatusCode)
-                //    {
-                //        string responseBody = await response.Content.ReadAsStringAsync();
-                //        _logger.LogInformation($"Успех: {responseBody}");
-                //    }
-                //    else
-                //    {
-                //        string errorResponse = await response.Content.ReadAsStringAsync();
-                //        _logger.LogError($"Ошибка: {response.StatusCode} - {errorResponse}");
-                //    }
-                //}
-                //catch (HttpRequestException ex)
-                //{
-                //    _logger.LogError(ex, "Ошибка HTTP при обращении к SearchService");
-                //}
 
                 var newSeries = dbContext.AnimeSeries.Find(seriesId);
                 await ProcessSeasons(dbContext, newSeries, seriesDto.Seasons);

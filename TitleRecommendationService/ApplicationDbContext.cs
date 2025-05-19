@@ -9,4 +9,12 @@ public class ApplicationDbContext : DbContext
         : base(options)
     {
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<TitleRating>()
+            .ToTable("titlerating", schema: "public"); // явно указываем схему
+
+        base.OnModelCreating(modelBuilder);
+    }
 }
