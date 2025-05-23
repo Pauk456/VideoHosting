@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Linq.Expressions;
+using Microsoft.AspNetCore.Cors;
 
 [ApiController]
 [Route("api/")]
@@ -20,14 +21,82 @@ public class GatewayController : Controller
     }
 
     [HttpPost("videos/search")]
-    public async Task<ActionResult<SearchResultDTO>> GetVideosBySearch([FromBody] VideoSearchDTO filter)
+    public async Task<ActionResult<int>> GetVideosBySearch([FromBody] VideoSearchDTO filter)
     {
-        throw new NotImplementedException();
+        try
+        {
+
+            string jsonString = JsonSerializer.Serialize<VideoSearchDTO>(filter);
+            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+            var searchResponse = await _httpClient.PostAsync($"{ServicesAddresses.uriServerInteraction}/getTitleBySearchTag", content);
+
+            searchResponse.EnsureSuccessStatusCode();
+
+            var responseString = await searchResponse.Content.ReadAsStringAsync();
+            if (int.TryParse(responseString, out int result))
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest("Некорректный формат ответа от SearchService");
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Ошибка при попытке получить результат поиска");
+            Console.ResetColor();
+            return BadRequest();
+        }
     }
-    [HttpPost("auth/register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDTO request)
+
+    [HttpGet("files/{id}")]
+    [EnableCors("AllowAll")]
+    public async Task<IActionResult> GetImgById(int id)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriVideoAndImageService}/{id}");
+
+            response.EnsureSuccessStatusCode();
+
+            return File(await response.Content.ReadAsStreamAsync(), "image/jpeg");
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Ошибка при попытке получить изображение из VideoAndImgService");
+            Console.ResetColor();
+            return BadRequest();
+        }
+    }
+
+    [HttpGet("{id}")]
+    [EnableCors("AllowAll")]
+    public async Task<IActionResult> GetVideo(int id)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriVideoAndImageService}/{id}");
+
+            response.EnsureSuccessStatusCode();
+
+            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
+
+            return File(
+                fileStream: await response.Content.ReadAsStreamAsync(),
+                contentType: contentType,
+                enableRangeProcessing: true 
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Ошибка при попытке получить видео из VideoAndImgService");
+            Console.ResetColor();
+            return BadRequest();
+        }
     }
 
     [HttpDelete("deleteSeries/{seriesId}")]
@@ -45,6 +114,7 @@ public class GatewayController : Controller
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("Ошибка при попытке удаления из TitleService");
             Console.ResetColor();
+            return BadRequest();
         }
 
         //var content = new StringContent(JsonSerializer.Serialize(seriesId), Encoding.UTF8, "application/json");
@@ -60,6 +130,7 @@ public class GatewayController : Controller
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("Ошибка при попытке удаления из SearchService");
             Console.ResetColor();
+            return BadRequest();
         }
 
         Console.WriteLine($"Удаление Тайтла с id: {seriesId}, прошло успешно");
@@ -89,6 +160,7 @@ public class GatewayController : Controller
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("Ошибка при попытке добавления в TitleService");
             Console.ResetColor();
+            return BadRequest();
         }
 
         // Отправка в RecommendationService
@@ -112,6 +184,7 @@ public class GatewayController : Controller
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("Ошибка при попытке добавления в SearchService" + ex.Message);
             Console.ResetColor();
+            return BadRequest();
         }
 
         Console.WriteLine($"Добавился новый Title: {request.Title}");
@@ -121,6 +194,12 @@ public class GatewayController : Controller
    
     [HttpPost("auth/login")]
     public async Task<IActionResult> Login([FromBody] LoginDTO request)
+    {
+        throw new NotImplementedException();
+    }
+
+    [HttpPost("auth/register")]
+    public async Task<IActionResult> Register([FromBody] RegisterDTO request)
     {
         throw new NotImplementedException();
     }

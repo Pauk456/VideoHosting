@@ -6,5 +6,6 @@
         public static readonly string uriServerInteraction = "http://host.docker.internal:4999";
         public static readonly string uriRecommendationService = "http://recommendationservice:5007/controller";
         public static readonly string uriSearchService = "http://searchservice:5003/Search";
+        public static readonly string uriVideoAndImageService = "http://videoservice:5001/Search/api/img";
     }
 }
