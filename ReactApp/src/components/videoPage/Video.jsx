@@ -13,13 +13,44 @@ const Video = ({seasons, timing}) => {
 
     const initialEpisode = episodeList?.[0]?.episodeNumber || null;
     const [selectedEpisode, setSelectedEpisode] = useState(initialEpisode);
+
+    const selectedEpisodeObj = episodeList.find(e => e.episodeNumber === selectedEpisode);
+    const selectedEpisodeId = selectedEpisodeObj?.id || null;
+
     // const [selectedEpisode, setSelectedEpisode] = useState(episodeKeys[0]);
 
+    const [showSkip, setShowSkip] = useState(false);
+
+    // … остальной ваш код (выбор сезона/серии)
+
+    // когда видео загружается — сбросим кнопку
+    useEffect(() => {
+        setShowSkip(false);
+    }, [selectedEpisodeId]);
+
+    // слушаем прогресс воспроизведения
+    useEffect(() => {
+        const vid = videoRef.current;
+        if (!vid) return;
+
+        const onTimeUpdate = () => {
+            if (vid.currentTime > timing.start && vid.currentTime < timing.end) {
+                setShowSkip(true);
+            }
+            else {
+                setShowSkip(false);
+            }
+        };
+
+        vid.addEventListener('timeupdate', onTimeUpdate);
+        return () => vid.removeEventListener('timeupdate', onTimeUpdate);
+    }, [timing.start]);
 
     const skipOpening = () => {
         if (videoRef.current) {
             videoRef.current.currentTime = timing.end;
             videoRef.current.play();
+            setShowSkip(false);
         }
     };
 
@@ -54,15 +85,13 @@ const Video = ({seasons, timing}) => {
         setSelectedEpisode(episodes[0]?.episodeNumber || null);
     }, [selectedSeason, seasons]);
 
-    useEffect(() => {
-        const selectedEpisodeObj = episodeList.find(e => e.episodeNumber === selectedEpisode);
-        const selectedEpisodeId = selectedEpisodeObj?.id || null;
 
+    useEffect(() => {
         if (selectedEpisodeId && videoRef.current) {
             videoRef.current.src = `http://localhost:5001/api/video/${selectedEpisodeId}`;
             videoRef.current.load();
         }
-    }, [selectedEpisode]);
+    }, [selectedEpisodeId]);
 
     return (
         <div className="video-container container">
@@ -79,7 +108,7 @@ const Video = ({seasons, timing}) => {
                 <select id="episode"
                         value={selectedEpisode}
                         onChange={e => setSelectedEpisode(parseInt(e.target.value, 10))}>
-                    {seasons.map(key => (
+                    {episodeList.map(key => (
                         <option key={key.id} value={key.episodeNumber}>
                             Серия {key.episodeNumber}
                         </option>
@@ -95,7 +124,7 @@ const Video = ({seasons, timing}) => {
                     style={{ width: '100%', height: 'auto' }}
 
                 />
-                {videoRef.current.currentTime > timing.start && (
+                {videoRef.current && showSkip && (
                     <button
                         onClick={skipOpening}
                         className="skip-button"

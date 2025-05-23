@@ -24,7 +24,6 @@ const GetRecommends = () => {
                 })
             );
             setAnimes(animeData);
-
         }
         fetchAnimeData();
     }, []);
