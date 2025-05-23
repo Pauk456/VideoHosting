@@ -20,6 +20,90 @@ public class GatewayController : Controller
         _httpClient = new HttpClient();
     }
 
+
+    [HttpGet("id={id}&filter={filter}")]
+    public async Task<ActionResult<TitleDTO>> GetTitle(string id, string filter)
+    {
+        if (!int.TryParse(id, out var titleId))
+            return BadRequest("Invalid ID");
+
+        var requestedFields = filter?.Split(',')
+                             .Select(f => f.Trim())
+                             .ToHashSet(StringComparer.OrdinalIgnoreCase)
+                             ?? new HashSet<string>();
+
+        var result = new TitleDTO();
+
+        try
+        {
+            if (requestedFields.Contains("TitleId"))
+                result.id = titleId;
+
+            if (requestedFields.Contains("TitleName"))
+                result.name = "Example Title";
+
+            if (requestedFields.Contains("Seasons"))
+                //result. = new List<object>();
+
+            if (requestedFields.Contains("Description"))
+                result.description = await GetTitleDescription(titleId);
+
+            if (requestedFields.Contains("Raiting"))
+                result.rating = await GetRating(titleId);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при попытке получить title запрос: id={id}&filter={filter}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    private async Task<JsonElement?> GetTitleDescription(int titleId)
+    {
+        try
+        {
+            var configResponse = await _httpClient.GetAsync(
+                $"{ServicesAddresses.uriTitleService}/getConfig/{titleId}",
+                HttpCompletionOption.ResponseHeadersRead);
+
+            configResponse.EnsureSuccessStatusCode();
+
+            using var stream = await configResponse.Content.ReadAsStreamAsync();
+            using var doc = await JsonDocument.ParseAsync(stream);
+
+            return doc.RootElement.Clone();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при получении description");
+            return null;
+        }
+    }
+
+    private async Task<JsonElement?> GetRating(int titleId)
+    {
+        try
+        {
+            var content = JsonContent.Create(new { idTitle = titleId });
+
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriRecommendationService}/getReview/{titleId}");
+
+            response.EnsureSuccessStatusCode();
+
+            using var stream = await response.Content.ReadAsStreamAsync();
+            using var doc = await JsonDocument.ParseAsync(stream);
+
+            return doc.RootElement.Clone();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при получении рейтинга");
+            return null;
+        }
+    }
+
     [HttpPost("videos/search")]
     public async Task<ActionResult<int>> GetVideosBySearch([FromBody] VideoSearchDTO filter)
     {
@@ -210,5 +294,3 @@ public class GatewayController : Controller
         return "Hello from Gataway!";
     }
 }
-
-
