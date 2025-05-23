@@ -85,8 +85,8 @@ public class TitleRecommendationController : Controller
 		return Ok($"Запись с ID {idTitle} успешно удалена.");
     }
 
-	[HttpGet("getReview")]
-	public async Task<ActionResult<TitleRatingData>> GetReview([FromBody] int idTitle)
+	[HttpGet("getReview/{id}")]
+	public async Task<ActionResult<TitleRatingData>> GetReview(int idTitle)
 	{
 		var titleRating = await _context.TitleRatings
 			.FirstOrDefaultAsync(tr => tr.IdTitle == idTitle);
