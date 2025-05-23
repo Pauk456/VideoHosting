@@ -125,7 +125,7 @@ const VideoPage = () => {
                     <p className={"elem-text-small big-description-text"}>{animeData?.config?.description}</p>
                 </div>}
 
-                <Video seasons={animeData.seasons} timing={animeData?.config?.timing}/>
+                <Video seasons={animeData.seasons} timing={animeData?.config?.timings}/>
                 <div className="comments-container container">
                     <p className="comments-container-title container-title-text">Комментарии</p>
                     {isInputVisible && <textarea className="input-comment elem-text-small regular-font-weight"
