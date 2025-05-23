@@ -43,8 +43,8 @@ public class GatewayController : Controller
                 result.name = "Example Title";
 
             if (requestedFields.Contains("Seasons"))
-                //result. = new List<object>();
-
+                result.seasons = await GetSeasons(titleId);
+             
             if (requestedFields.Contains("Description"))
                 result.description = await GetTitleDescription(titleId);
 
@@ -58,6 +58,11 @@ public class GatewayController : Controller
             Console.WriteLine($"Ошибка при попытке получить title запрос: id={id}&filter={filter}");
             return StatusCode(500, "Internal server error");
         }
+    }
+
+    private async Task<List<SeasonsData>?> GetSeasons(int titleId)
+    {
+        throw new NotImplementedException();
     }
 
     private async Task<JsonElement?> GetTitleDescription(int titleId)
@@ -77,7 +82,7 @@ public class GatewayController : Controller
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка при получении description");
+            Console.WriteLine($"Ошибка при получении description: {ex.Message}");
             return null;
         }
     }
@@ -99,7 +104,7 @@ public class GatewayController : Controller
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка при получении рейтинга");
+            Console.WriteLine($"Ошибка при получении рейтинга: {ex.Message}");
             return null;
         }
     }
@@ -254,7 +259,7 @@ public class GatewayController : Controller
 
         try
         {
-            var titleDto = new TitleDTO
+            var titleDto = new 
             {
                 TitleName = request.Title,
                 titleId = seriesId

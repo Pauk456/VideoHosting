@@ -7,5 +7,6 @@ public class TitleDTO
     public string? name { get; set; }
     public int? id { get; set; }
     public JsonElement? description { get; set; }
+    public List<SeasonsData>? seasons { get; set; }
     public JsonElement? rating { get; set; }
 }
