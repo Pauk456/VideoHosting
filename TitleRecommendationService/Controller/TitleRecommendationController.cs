@@ -32,8 +32,8 @@ public class TitleRecommendationController : Controller
 		return Ok(topAnime);
 	}
 
-	[HttpPost("addNewTitle")]
-	public async Task<IActionResult> AddNewTitle([FromBody] int idTitle)
+	[HttpGet("addNewTitle/{idTitle}")]
+	public async Task<IActionResult> AddNewTitle(int idTitle)
 	{
 		var newTitle = new TitleRating
 		{
@@ -71,8 +71,8 @@ public class TitleRecommendationController : Controller
         return Ok($"Оценка {reviewDto.Rating} успешно добавлена к {reviewDto.IdTitle}.");
     }
 
-	[HttpPost("deleteTitle")]
-	public async Task<IActionResult> DeleteTitle([FromBody] int idTitle)
+	[HttpDelete("deleteTitle/{idTitle}")]
+	public async Task<IActionResult> DeleteTitle(int idTitle)
 	{
         var titleRating = await _context.TitleRatings
         .FirstOrDefaultAsync(tr => tr.IdTitle == idTitle);
@@ -85,7 +85,7 @@ public class TitleRecommendationController : Controller
 		return Ok($"Запись с ID {idTitle} успешно удалена.");
     }
 
-	[HttpGet("getReview/{id}")]
+	[HttpGet("getReview/{idTitle}")]
 	public async Task<ActionResult<TitleRatingData>> GetReview(int idTitle)
 	{
 		var titleRating = await _context.TitleRatings

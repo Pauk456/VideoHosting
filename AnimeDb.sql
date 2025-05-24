@@ -5,7 +5,7 @@
 -- Dumped from database version 17.2
 -- Dumped by pg_dump version 17.2
 
--- Started on 2025-05-15 21:25:06
+-- Started on 2025-05-24 18:43:42
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -184,6 +184,8 @@ ALTER TABLE ONLY public.seasons ALTER COLUMN id SET DEFAULT nextval('public.seas
 -- Data for Name: __EFMigrationsHistory; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
+COPY public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") FROM stdin;
+\.
 
 
 --
@@ -192,8 +194,8 @@ ALTER TABLE ONLY public.seasons ALTER COLUMN id SET DEFAULT nextval('public.seas
 -- Data for Name: anime_series; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.anime_series (id, preview_path, title) VALUES (1, 'Videos\naruto\naruto.jpg', 'naruto');
-INSERT INTO public.anime_series (id, preview_path, title) VALUES (2, 'Videos\demon-slayer\demon-slayer.jpg', 'demon-slayer');
+COPY public.anime_series (id, preview_path, title) FROM stdin;
+\.
 
 
 --
@@ -202,10 +204,8 @@ INSERT INTO public.anime_series (id, preview_path, title) VALUES (2, 'Videos\dem
 -- Data for Name: episodes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.episodes (id, season_id, file_path, episode_number) VALUES (4, 1, 'Videos\naruto\s1\ep1.mp4', 1);
-INSERT INTO public.episodes (id, season_id, file_path, episode_number) VALUES (5, 1, 'Videos\naruto\s1\ep2.mp4', 2);
-INSERT INTO public.episodes (id, season_id, file_path, episode_number) VALUES (8, 1, 'Videos\naruto\s1\ep3.mp4', 3);
-INSERT INTO public.episodes (id, season_id, file_path, episode_number) VALUES (7, 1, 'Videos\naruto\s1\ep4.mp4', 4);
+COPY public.episodes (id, season_id, file_path, episode_number) FROM stdin;
+\.
 
 
 --
@@ -214,12 +214,8 @@ INSERT INTO public.episodes (id, season_id, file_path, episode_number) VALUES (7
 -- Data for Name: seasons; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.seasons (id, series_id, season_number) VALUES (1, 1, 1);
-INSERT INTO public.seasons (id, series_id, season_number) VALUES (4, 1, 2);
-INSERT INTO public.seasons (id, series_id, season_number) VALUES (5, 1, 3);
-INSERT INTO public.seasons (id, series_id, season_number) VALUES (6, 2, 1);
-INSERT INTO public.seasons (id, series_id, season_number) VALUES (7, 2, 2);
-INSERT INTO public.seasons (id, series_id, season_number) VALUES (8, 2, 3);
+COPY public.seasons (id, series_id, season_number) FROM stdin;
+\.
 
 
 --
@@ -303,7 +299,7 @@ ALTER TABLE ONLY public.seasons
     ADD CONSTRAINT seasons_series_id_fkey FOREIGN KEY (series_id) REFERENCES public.anime_series(id) ON DELETE CASCADE;
 
 
--- Completed on 2025-05-15 21:25:06
+-- Completed on 2025-05-24 18:43:42
 
 --
 -- PostgreSQL database dump complete
