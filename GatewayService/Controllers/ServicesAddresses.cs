@@ -7,5 +7,6 @@
         public static readonly string uriRecommendationService = "http://titlerecommendationservice:5007/TitleRecommendation";
         public static readonly string uriSearchService = "http://searchservice:5003/Search";
         public static readonly string uriVideoAndImageService = "http://videoservice:5001/Search/api/img";
+        public static readonly string uriGatewayLocal = "http://localhost:5004/api";
     }
 }

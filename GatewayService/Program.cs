@@ -17,6 +17,8 @@ var app = builder.Build();
 
 app.UseRouting();
 
+app.UseCors("AllowAll");
+
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();

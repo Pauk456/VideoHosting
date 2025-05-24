@@ -14,7 +14,7 @@ public class FileStructureUpdateService : BackgroundService
     private readonly ILogger<FileStructureUpdateService> _logger; // Добавлен логгер
 
     private readonly string uriTitleService = "http://titleservice:5006/api/title";
-    private readonly string uriGateWayService = "http://gatewayservice:5004/api";
+    private readonly string uriGateWayService = "http://gatewayservice:5004/api/inner";
     private readonly string uriServerInteraction = "http://host.docker.internal:4999";
 
     public FileStructureUpdateService(

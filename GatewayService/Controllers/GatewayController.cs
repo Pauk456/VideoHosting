@@ -2,17 +2,16 @@
 
 using Microsoft.AspNetCore.Mvc;
 using GatewayService.Models;
-using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text;
-using System.Text.Json.Serialization;
-using System.Linq.Expressions;
 using Microsoft.AspNetCore.Cors;
+using static System.Net.WebRequestMethods;
 
+[EnableCors("AllowAll")]
 [ApiController]
 [Route("api/")]
-public class GatewayController : Controller
+public class GatewayController : ControllerBase
 {
     private readonly HttpClient _httpClient;
     public GatewayController() 
@@ -40,7 +39,7 @@ public class GatewayController : Controller
                 result.id = titleId;
 
             if (requestedFields.Contains("TitleName"))
-                result.name = "Example Title";
+                result.name = await GetTitleName(titleId);
 
             if (requestedFields.Contains("Seasons"))
                 result.seasons = await GetSeasons(titleId);
@@ -60,11 +59,152 @@ public class GatewayController : Controller
         }
     }
 
-    private async Task<List<SeasonsData>?> GetSeasons(int titleId)
+    [HttpGet("titleTag={titleTag}&filter={filter}")]
+    public async Task<ActionResult<TitleDTO>> GetVideosBySearch(string titleTag, string filter)
+    {
+        int titleId;
+        try
+        {
+            var dto = new
+            {
+                TitleSearchTag = titleTag
+            };
+
+            var searchResponse = await _httpClient.PostAsJsonAsync($"{ServicesAddresses.uriSearchService}/getTitleBySearchTag", dto);
+
+            searchResponse.EnsureSuccessStatusCode();
+
+            var responseString = await searchResponse.Content.ReadAsStringAsync();
+            if (!int.TryParse(responseString, out titleId))
+            {
+                return BadRequest("Некорректный формат ответа от SearchService");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Ошибка при попытке получить  результат поиска");
+            return BadRequest();
+        }
+
+        try
+        {
+            var tittleResponse = await GetTitle(titleId.ToString(), filter);
+
+            return tittleResponse;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при попытке получить ответ от gateway: {ex.Message}");
+            return BadRequest();
+        }
+    }
+
+    [HttpGet("files/{id}")]
+    
+    public async Task<IActionResult> GetImgById(int id)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriVideoAndImageService}/{id}");
+
+            response.EnsureSuccessStatusCode();
+
+            return File(await response.Content.ReadAsStreamAsync(), "image/jpeg");
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Ошибка при попытке получить изображение из VideoAndImgService");
+            Console.ResetColor();
+            return BadRequest();
+        }
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetVideo(int id)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriVideoAndImageService}/{id}");
+
+            response.EnsureSuccessStatusCode();
+
+            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
+
+            return File(
+                fileStream: await response.Content.ReadAsStreamAsync(),
+                contentType: contentType,
+                enableRangeProcessing: true
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Ошибка при попытке получить видео из VideoAndImgService");
+            Console.ResetColor();
+            return BadRequest();
+        }
+    }
+
+    [HttpPost("auth/login")]
+    public async Task<IActionResult> Login([FromBody] LoginDTO request)
     {
         throw new NotImplementedException();
     }
 
+    [HttpPost("auth/register")]
+    public async Task<IActionResult> Register([FromBody] RegisterDTO request)
+    {
+        throw new NotImplementedException();
+    }
+
+    [HttpGet("Test")]
+    public string Test()
+    {
+        return "Hello from Gataway!";
+    }
+
+    private async Task<string?> GetTitleName(int titleId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriTitleService}/getAnimeName/{titleId}");
+            
+            response.EnsureSuccessStatusCode();
+            
+            var json = await response.Content.ReadAsStringAsync();
+            var resultObj = JsonSerializer.Deserialize<AnimeNameResponse>(json);
+            var name = resultObj?.name ?? null;
+
+            return name;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при получении description: {ex.Message}");
+            return null;
+        }
+    }
+    private async Task<JsonElement?> GetSeasons(int titleId)
+    {
+        try
+        {
+            var configResponse = await _httpClient.GetAsync(
+                $"{ServicesAddresses.uriTitleService}/getSeasonsAndEpisodes/{titleId}",
+                HttpCompletionOption.ResponseHeadersRead);
+
+            configResponse.EnsureSuccessStatusCode();
+
+            using var stream = await configResponse.Content.ReadAsStreamAsync();
+            using var doc = await JsonDocument.ParseAsync(stream);
+
+            return doc.RootElement.Clone();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при получении Seasons: {ex.Message}");
+            return null;
+        }
+    }
     private async Task<JsonElement?> GetTitleDescription(int titleId)
     {
         try
@@ -86,7 +226,6 @@ public class GatewayController : Controller
             return null;
         }
     }
-
     private async Task<JsonElement?> GetRating(int titleId)
     {
         try
@@ -108,194 +247,8 @@ public class GatewayController : Controller
             return null;
         }
     }
-
-    [HttpPost("videos/search")]
-    public async Task<ActionResult<int>> GetVideosBySearch([FromBody] VideoSearchDTO filter)
+    private class AnimeNameResponse
     {
-        try
-        {
-
-            string jsonString = JsonSerializer.Serialize<VideoSearchDTO>(filter);
-            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-            var searchResponse = await _httpClient.PostAsync($"{ServicesAddresses.uriServerInteraction}/getTitleBySearchTag", content);
-
-            searchResponse.EnsureSuccessStatusCode();
-
-            var responseString = await searchResponse.Content.ReadAsStringAsync();
-            if (int.TryParse(responseString, out int result))
-            {
-                return Ok(result);
-            }
-            else
-            {
-                return BadRequest("Некорректный формат ответа от SearchService");
-            }
-        }
-        catch(Exception ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Ошибка при попытке получить результат поиска");
-            Console.ResetColor();
-            return BadRequest();
-        }
-    }
-
-    [HttpGet("files/{id}")]
-    [EnableCors("AllowAll")]
-    public async Task<IActionResult> GetImgById(int id)
-    {
-        try
-        {
-            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriVideoAndImageService}/{id}");
-
-            response.EnsureSuccessStatusCode();
-
-            return File(await response.Content.ReadAsStreamAsync(), "image/jpeg");
-        }
-        catch (Exception ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Ошибка при попытке получить изображение из VideoAndImgService");
-            Console.ResetColor();
-            return BadRequest();
-        }
-    }
-
-    [HttpGet("{id}")]
-    [EnableCors("AllowAll")]
-    public async Task<IActionResult> GetVideo(int id)
-    {
-        try
-        {
-            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriVideoAndImageService}/{id}");
-
-            response.EnsureSuccessStatusCode();
-
-            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
-
-            return File(
-                fileStream: await response.Content.ReadAsStreamAsync(),
-                contentType: contentType,
-                enableRangeProcessing: true 
-            );
-        }
-        catch (Exception ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Ошибка при попытке получить видео из VideoAndImgService");
-            Console.ResetColor();
-            return BadRequest();
-        }
-    }
-
-    [HttpDelete("deleteSeries/{seriesId}")]
-    public async Task<ActionResult> DeleteTitle(int seriesId)
-    {
-        Console.WriteLine($"Начало удаление Тайтла с id: {seriesId}");
-
-        try
-        {
-            var deleteTitleResponse = await _httpClient.DeleteAsync($"{ServicesAddresses.uriTitleService}/deleteSeries/{seriesId}");
-            deleteTitleResponse.EnsureSuccessStatusCode();
-        }
-        catch (Exception ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Ошибка при попытке удаления из TitleService");
-            Console.ResetColor();
-            return BadRequest();
-        }
-
-        //var content = new StringContent(JsonSerializer.Serialize(seriesId), Encoding.UTF8, "application/json");
-        //var deleteRecommendationResponse = await _httpClient.PostAsync($"{ServicesAddresses.uriRecommendationService}/deleteTitle", content);
-
-        try
-        {
-            var deleteSearchResponse = await _httpClient.DeleteAsync($"{ServicesAddresses.uriSearchService}/deleteTitle/{seriesId}");
-            deleteSearchResponse.EnsureSuccessStatusCode();
-        }
-        catch (Exception ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Ошибка при попытке удаления из SearchService");
-            Console.ResetColor();
-            return BadRequest();
-        }
-
-        Console.WriteLine($"Удаление Тайтла с id: {seriesId}, прошло успешно");
-
-        return Ok();
-    }
-
-    [HttpPost("addTitle")]
-    public async Task<ActionResult<int>> AddTitle([FromBody] AnimeSeriesDto request)
-    {
-        Console.WriteLine($"Начало добовление нового Title: {request.Title}");
-
-        int seriesId = 0;
-        try
-        {
-            string jsonString = JsonSerializer.Serialize<AnimeSeriesDto>(request);
-            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-            var responseMessage = await _httpClient.PostAsync(ServicesAddresses.uriTitleService + "/addSeries", content);
-            string responseString = await responseMessage.Content.ReadAsStringAsync();
-           
-            if (int.TryParse(responseString, out int result))
-            {
-                seriesId = result;
-            }
-        } catch(Exception ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Ошибка при попытке добавления в TitleService");
-            Console.ResetColor();
-            return BadRequest();
-        }
-
-        // Отправка в RecommendationService
-        //var data = new { idTitle = seriesId };
-        //var json = JsonSerializer.Serialize(data);
-        //var strContent = new StringContent(json, Encoding.UTF8, "application/json");
-
-        try
-        {
-            var titleDto = new 
-            {
-                TitleName = request.Title,
-                titleId = seriesId
-            };
-            var searchServiceJsonString = JsonSerializer.Serialize(titleDto);
-            var contentSearch = new StringContent(searchServiceJsonString, Encoding.UTF8, "application/json");
-            var responseSearch = await _httpClient.PostAsync(ServicesAddresses.uriSearchService + "/postTitle", contentSearch);
-            responseSearch.EnsureSuccessStatusCode();
-        } catch(Exception ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Ошибка при попытке добавления в SearchService" + ex.Message);
-            Console.ResetColor();
-            return BadRequest();
-        }
-
-        Console.WriteLine($"Добавился новый Title: {request.Title}");
-
-        return Ok(seriesId);
-    }
-   
-    [HttpPost("auth/login")]
-    public async Task<IActionResult> Login([FromBody] LoginDTO request)
-    {
-        throw new NotImplementedException();
-    }
-
-    [HttpPost("auth/register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDTO request)
-    {
-        throw new NotImplementedException();
-    }
-
-    [HttpGet("Test")]
-    public string Test()
-    {
-        return "Hello from Gataway!";
+        public string name { get; set; }
     }
 }
