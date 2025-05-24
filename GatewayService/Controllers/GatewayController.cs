@@ -320,10 +320,9 @@ public class GatewayController : ControllerBase
 
     private async Task<JsonElement?> GetRecent()
     {
-        // не реализовано то же самое что и GetReccomends
         try
         {
-            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriRecommendationService}/top");
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriTitleService}/getRecentEpisodes");
 
             response.EnsureSuccessStatusCode();
 
@@ -334,7 +333,7 @@ public class GatewayController : ControllerBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка при получении рекомендованных аниме: {ex.Message}");
+            Console.WriteLine($"Ошибка при получении недавних аниме: {ex.Message}");
             return null;
         }
     }
