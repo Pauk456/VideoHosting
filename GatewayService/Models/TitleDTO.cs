@@ -1,8 +1,12 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GatewayService.Models;
 public class TitleDTO
 {
-    public string? TitleName { get; set; }
-    public int? titleId { get; set; }
+    public string? name { get; set; }
+    public int? id { get; set; }
+    public JsonElement? description { get; set; }
+    public JsonElement? seasons { get; set; }
+    public JsonElement? rating { get; set; }
 }

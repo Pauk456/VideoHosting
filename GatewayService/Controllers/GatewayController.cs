@@ -2,16 +2,17 @@
 
 using Microsoft.AspNetCore.Mvc;
 using GatewayService.Models;
-using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text;
-using System.Text.Json.Serialization;
-using System.Linq.Expressions;
+using Microsoft.AspNetCore.Cors;
+using static System.Net.WebRequestMethods;
+using System.IO;
 
+[EnableCors("AllowAll")]
 [ApiController]
 [Route("api/")]
-public class GatewayController : Controller
+public class GatewayController : ControllerBase
 {
     private readonly HttpClient _httpClient;
     public GatewayController() 
@@ -19,108 +20,170 @@ public class GatewayController : Controller
         _httpClient = new HttpClient();
     }
 
-    [HttpPost("videos/search")]
-    public async Task<ActionResult<SearchResultDTO>> GetVideosBySearch([FromBody] VideoSearchDTO filter)
-    {
-        throw new NotImplementedException();
-    }
-    [HttpPost("auth/register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDTO request)
-    {
-        throw new NotImplementedException();
-    }
 
-    [HttpDelete("deleteSeries/{seriesId}")]
-    public async Task<ActionResult> DeleteTitle(int seriesId)
+    [HttpGet("id={id}&filter={filter}")]
+    public async Task<ActionResult<TitleDTO>> GetTitle(string id, string filter)
     {
-        Console.WriteLine($"Начало удаление Тайтла с id: {seriesId}");
+        if (!int.TryParse(id, out var titleId))
+            return BadRequest("Invalid ID");
+
+        var requestedFields = filter?.Split(',')
+                             .Select(f => f.Trim())
+                             .ToHashSet(StringComparer.OrdinalIgnoreCase)
+                             ?? new HashSet<string>();
+
+        var result = new TitleDTO();
 
         try
         {
-            var deleteTitleResponse = await _httpClient.DeleteAsync($"{ServicesAddresses.uriTitleService}/deleteSeries/{seriesId}");
-            deleteTitleResponse.EnsureSuccessStatusCode();
+            if (requestedFields.Contains("TitleId"))
+                result.id = titleId;
+
+            if (requestedFields.Contains("TitleName"))
+                result.name = await GetTitleName(titleId);
+
+            if (requestedFields.Contains("Seasons"))
+                result.seasons = await GetSeasons(titleId);
+             
+            if (requestedFields.Contains("Description"))
+                result.description = await GetTitleDescription(titleId);
+
+            if (requestedFields.Contains("Raiting"))
+                result.rating = await GetRating(titleId);
+
+            return Ok(result);
         }
         catch (Exception ex)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Ошибка при попытке удаления из TitleService");
-            Console.ResetColor();
+            Console.WriteLine($"Ошибка при попытке получить title запрос: id={id}&filter={filter}");
+            return StatusCode(500, "Internal server error");
         }
-
-        //var content = new StringContent(JsonSerializer.Serialize(seriesId), Encoding.UTF8, "application/json");
-        //var deleteRecommendationResponse = await _httpClient.PostAsync($"{ServicesAddresses.uriRecommendationService}/deleteTitle", content);
-
-        try
-        {
-            var deleteSearchResponse = await _httpClient.DeleteAsync($"{ServicesAddresses.uriSearchService}/deleteTitle/{seriesId}");
-            deleteSearchResponse.EnsureSuccessStatusCode();
-        }
-        catch (Exception ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Ошибка при попытке удаления из SearchService");
-            Console.ResetColor();
-        }
-
-        Console.WriteLine($"Удаление Тайтла с id: {seriesId}, прошло успешно");
-
-        return Ok();
     }
 
-    [HttpPost("addTitle")]
-    public async Task<ActionResult<int>> AddTitle([FromBody] AnimeSeriesDto request)
+    [HttpGet("titleTag={titleTag}&filter={filter}")]
+    public async Task<ActionResult<TitleDTO>> GetVideosBySearch(string titleTag, string filter)
     {
-        Console.WriteLine($"Начало добовление нового Title: {request.Title}");
-
-        int seriesId = 0;
+        int titleId;
         try
         {
-            string jsonString = JsonSerializer.Serialize<AnimeSeriesDto>(request);
-            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-            var responseMessage = await _httpClient.PostAsync(ServicesAddresses.uriTitleService + "/addSeries", content);
-            string responseString = await responseMessage.Content.ReadAsStringAsync();
-           
-            if (int.TryParse(responseString, out int result))
+            var dto = new
             {
-                seriesId = result;
-            }
-        } catch(Exception ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Ошибка при попытке добавления в TitleService");
-            Console.ResetColor();
-        }
-
-        // Отправка в RecommendationService
-        //var data = new { idTitle = seriesId };
-        //var json = JsonSerializer.Serialize(data);
-        //var strContent = new StringContent(json, Encoding.UTF8, "application/json");
-
-        try
-        {
-            var titleDto = new TitleDTO
-            {
-                TitleName = request.Title,
-                titleId = seriesId
+                TitleSearchTag = titleTag
             };
-            var searchServiceJsonString = JsonSerializer.Serialize(titleDto);
-            var contentSearch = new StringContent(searchServiceJsonString, Encoding.UTF8, "application/json");
-            var responseSearch = await _httpClient.PostAsync(ServicesAddresses.uriSearchService + "/postTitle", contentSearch);
-            responseSearch.EnsureSuccessStatusCode();
-        } catch(Exception ex)
+
+            var searchResponse = await _httpClient.PostAsJsonAsync($"{ServicesAddresses.uriSearchService}/getTitleBySearchTag", dto);
+
+            searchResponse.EnsureSuccessStatusCode();
+
+            var responseString = await searchResponse.Content.ReadAsStringAsync();
+            if (!int.TryParse(responseString, out titleId))
+            {
+                return BadRequest("Некорректный формат ответа от SearchService");
+            }
+        }
+        catch (Exception ex)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Ошибка при попытке добавления в SearchService" + ex.Message);
-            Console.ResetColor();
+            Console.WriteLine("Ошибка при попытке получить  результат поиска");
+            return BadRequest();
         }
 
-        Console.WriteLine($"Добавился новый Title: {request.Title}");
+        try
+        {
+            var tittleResponse = await GetTitle(titleId.ToString(), filter);
 
-        return Ok(seriesId);
+            return tittleResponse;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при попытке получить ответ от gateway: {ex.Message}");
+            return BadRequest();
+        }
     }
-   
+
+    [HttpGet("getManyTitle/filter={filter}")]
+    public async Task<ActionResult<ManyTitleDTO>> GetManyTitle(string filter)
+    {
+        var requestedFields = filter?.Split(',')
+                            .Select(f => f.Trim())
+                            .ToHashSet(StringComparer.OrdinalIgnoreCase)
+                            ?? new HashSet<string>();
+
+        var result = new ManyTitleDTO();
+
+        try
+        {
+            if (requestedFields.Contains("reccomends"))
+                result.reccomends = await GetReccomends();
+
+            if (requestedFields.Contains("all"))
+                result.all = await GetAll();
+
+            if (requestedFields.Contains("recent"))
+                result.recent = await GetRecent();
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка про обработке запроса: getManyTitle/filter={filter}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpGet("img/{id}")]
+    public async Task<IActionResult> GetImgById(int id)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriVideoAndImageService}/{id}");
+
+            response.EnsureSuccessStatusCode();
+
+            return File(await response.Content.ReadAsStreamAsync(), "image/jpeg");
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Ошибка при попытке получить изображение из VideoAndImgService");
+            Console.ResetColor();
+            return BadRequest();
+        }
+    }
+
+    [HttpGet("video/{id}")]
+    public async Task<IActionResult> GetVideo(int id)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriVideoAndImageService}/{id}");
+
+            response.EnsureSuccessStatusCode();
+
+            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
+
+            return File(
+                fileStream: await response.Content.ReadAsStreamAsync(),
+                contentType: contentType,
+                enableRangeProcessing: true
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Ошибка при попытке получить видео из VideoAndImgService");
+            Console.ResetColor();
+            return BadRequest();
+        }
+    }
+
     [HttpPost("auth/login")]
     public async Task<IActionResult> Login([FromBody] LoginDTO request)
+    {
+        throw new NotImplementedException();
+    }
+
+    [HttpPost("auth/register")]
+    public async Task<IActionResult> Register([FromBody] RegisterDTO request)
     {
         throw new NotImplementedException();
     }
@@ -130,6 +193,154 @@ public class GatewayController : Controller
     {
         return "Hello from Gataway!";
     }
+
+    private async Task<string?> GetTitleName(int titleId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriTitleService}/getAnimeName/{titleId}");
+            
+            response.EnsureSuccessStatusCode();
+            
+            var json = await response.Content.ReadAsStringAsync();
+            var resultObj = JsonSerializer.Deserialize<AnimeNameResponse>(json);
+            var name = resultObj?.name ?? null;
+
+            return name;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при получении description: {ex.Message}");
+            return null;
+        }
+    }
+    private async Task<JsonElement?> GetSeasons(int titleId)
+    {
+        try
+        {
+            var configResponse = await _httpClient.GetAsync(
+                $"{ServicesAddresses.uriTitleService}/getSeasonsAndEpisodes/{titleId}",
+                HttpCompletionOption.ResponseHeadersRead);
+
+            configResponse.EnsureSuccessStatusCode();
+
+            using var stream = await configResponse.Content.ReadAsStreamAsync();
+            using var doc = await JsonDocument.ParseAsync(stream);
+
+            return doc.RootElement.Clone();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при получении Seasons: {ex.Message}");
+            return null;
+        }
+    }
+    private async Task<JsonElement?> GetTitleDescription(int titleId)
+    {
+        try
+        {
+            var configResponse = await _httpClient.GetAsync(
+                $"{ServicesAddresses.uriTitleService}/getConfig/{titleId}",
+                HttpCompletionOption.ResponseHeadersRead);
+
+            configResponse.EnsureSuccessStatusCode();
+
+            using var stream = await configResponse.Content.ReadAsStreamAsync();
+            using var doc = await JsonDocument.ParseAsync(stream);
+
+            return doc.RootElement.Clone();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при получении description: {ex.Message}");
+            return null;
+        }
+    }
+    private async Task<JsonElement?> GetRating(int titleId)
+    {
+        try
+        {
+            var content = JsonContent.Create(new { idTitle = titleId });
+
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriRecommendationService}/getReview/{titleId}");
+
+            response.EnsureSuccessStatusCode();
+
+            using var stream = await response.Content.ReadAsStreamAsync();
+            using var doc = await JsonDocument.ParseAsync(stream);
+
+            return doc.RootElement.Clone();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при получении рейтинга: {ex.Message}");
+            return null;
+        }
+    }
+
+    private async Task<JsonElement?> GetAll()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriTitleService}/all");
+
+            response.EnsureSuccessStatusCode();
+
+            using var stream = await response.Content.ReadAsStreamAsync();
+            using var doc = await JsonDocument.ParseAsync(stream);
+
+            return doc.RootElement.Clone();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при получении всех аниме: {ex.Message}");
+            return null;
+        }
+    }
+
+    private async Task<JsonElement?> GetReccomends()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriRecommendationService}/top");
+
+            response.EnsureSuccessStatusCode();
+
+            using var stream = await response.Content.ReadAsStreamAsync();
+            using var doc = await JsonDocument.ParseAsync(stream);
+
+            return doc.RootElement.Clone();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при получении рекомендованных аниме: {ex.Message}");
+            return null;
+        }
+    }
+
+    private async Task<JsonElement?> GetRecent()
+    {
+        // не реализовано то же самое что и GetReccomends
+        try
+        {
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriRecommendationService}/top");
+
+            response.EnsureSuccessStatusCode();
+
+            using var stream = await response.Content.ReadAsStreamAsync();
+            using var doc = await JsonDocument.ParseAsync(stream);
+
+            return doc.RootElement.Clone();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при получении рекомендованных аниме: {ex.Message}");
+            return null;
+        }
+    }
+
+    private class AnimeNameResponse
+    {
+        public string name { get; set; }
+    }
 }
-
-
