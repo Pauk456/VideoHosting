@@ -12,10 +12,11 @@ var app = builder.Build();
 
 app.Urls.Add("http://localhost:4999");
 
+app.MapGet("/test", () => "Сервер работает!");
 //вынесу в контроллер если не будет лень
 app.MapGet("/get-structure", (HttpContext context) =>
 {
-    var basePath = @"D:\Anime\Videos";
+    var basePath = @"data/Anime/Videos";
     var animeFiles = Directory.GetDirectories(basePath);
 
     var animeList = new List<AnimeSeriesDto>();
@@ -37,7 +38,7 @@ app.MapGet("/get-structure", (HttpContext context) =>
             {
                 if (Path.GetExtension(file) == ".jpg")
                 {
-                    animeSeries.PreviewPath = file.Split("D:\\Anime\\")[1];
+                    animeSeries.PreviewPath = file.Split("data/Anime/")[1];
                 }
             }
         }
@@ -73,7 +74,7 @@ app.MapGet("/get-structure", (HttpContext context) =>
                 var episode = new EpisodeDto();
 
                 episode.EpisodeNumber = episodeCount++;
-                episode.FilePath = episodePath.Split("D:\\Anime\\")[1];
+                episode.FilePath = episodePath.Split("data/Anime/")[1];
 
                 episodes.Add(episode);
             }
@@ -92,7 +93,7 @@ app.MapGet("/get-structure", (HttpContext context) =>
 //вынесу в контроллер если не будет лень
 app.MapGet("/get-img", async (HttpContext context, string filePath) =>
 {
-    var basePath = @"D:\Anime";
+    var basePath = @"data\Anime";
     var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath));
 
     if (!fullPath.StartsWith(basePath))
@@ -115,7 +116,7 @@ app.MapGet("/get-img", async (HttpContext context, string filePath) =>
 
 app.MapGet("/get-config", async (HttpContext context, string filePath) =>
 {
-    var basePath = @"D:\Anime";
+    var basePath = @"data/Anime";
     var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath));
 
     if (!fullPath.StartsWith(basePath))
@@ -139,7 +140,7 @@ app.MapGet("/get-config", async (HttpContext context, string filePath) =>
 //вынесу в контроллер если не будет лень
 app.MapGet("/stream-video", async (HttpContext context, string filePath) =>
 {
-    var basePath = @"D:\Anime";
+    var basePath = @"data/Anime";
     var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath));
 
     if (!fullPath.StartsWith(basePath))
@@ -208,4 +209,4 @@ static (long Start, long End)? ParseRange(string rangeHeader, long fileLength)
     }
 }
 
-app.Run();
+app.Run("http://0.0.0.0:4999");

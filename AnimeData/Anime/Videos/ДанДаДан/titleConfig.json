@@ -1,0 +1,10 @@
+{
+    "description": "аниме про Наруто",
+    "year": "2003",
+    "genres": "сёнен",
+    "studio": "Mad House",
+    "timings" : {
+        "start": 40,
+        "end": 40
+    }
+}

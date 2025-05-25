@@ -13,6 +13,15 @@ services:
     depends_on:
       - gatewayservice
 
+  serverinteraction:
+    image: serverinteraction
+    build:
+      context: ./serverinteraction
+    ports:
+      - "4999:4999"
+    volumes:
+      - ./AnimeData:/app/data
+
   view:
     image: view
     build:
@@ -133,6 +142,7 @@ services:
     depends_on:
       - db
       - titleservice
+      - serverinteraction
     environment:
       TitleServiceUrl: "http://titleservice:5006"
 
