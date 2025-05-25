@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
 using SearchService.Models;
+using SearchService.DbModels;
 
 namespace SearchService.Controllers;
 
@@ -74,10 +74,12 @@ public class SearchController : Controller
     {
         try
         {
-            await _contex.Database.ExecuteSqlRawAsync(
-                "DELETE FROM searchData WHERE title_id = {0}",
-                TitleId
-            );
+            var items = _contex.SearchData
+                .Where(s => s.TitleId == TitleId)
+                .ToList();
+
+            _contex.SearchData.RemoveRange(items);
+            await _contex.SaveChangesAsync();
 
             Console.WriteLine($"Удалил Title: {TitleId}");
             return Ok("Succes post in search service");
@@ -92,35 +94,38 @@ public class SearchController : Controller
     public async Task<ActionResult> PostTitle([FromBody] TitleDTO request)
     {
         if (string.IsNullOrEmpty(request.TitleName) || request.TitleId == null)
-        {
-            return BadRequest("Title name and title id is required");
-        }
+            return BadRequest("...");
 
         try
         {
-            await _contex.Database.ExecuteSqlRawAsync(
-                "INSERT INTO searchData (title_id, title_tag) VALUES ({0}, {1})",
-                request.TitleId, request.TitleName.ToLower()
-            );
+            var tokenEntry = new SearchData
+            {
+                TitleId = request.TitleId.Value,
+                TitleTag = request.TitleName.ToLower()
+            };
+
+            await _contex.SearchData.AddAsync(tokenEntry);
 
             var title = request.TitleName.ToLower();
-            var maxTokenLength = title.Length;
-
-            for (int length = 1; length <= maxTokenLength; length++)
+            for (int length = 1; length <= title.Length; length++)
             {
                 var token = title.Substring(0, length);
-
-                var exists = await _contex.SearchData
+                bool exists = await _contex.SearchData
                     .AnyAsync(s => s.TitleId == request.TitleId && s.TitleTag == token);
 
                 if (!exists)
                 {
-                    await _contex.Database.ExecuteSqlRawAsync(
-                        "INSERT INTO searchData (title_id, title_tag) VALUES ({0}, {1})",
-                        request.TitleId, token
-                    );
+                    tokenEntry = new SearchData
+                    {
+                        TitleId = request.TitleId.Value,
+                        TitleTag = token
+                    };
+                    await _contex.SearchData.AddAsync(tokenEntry);
                 }
             }
+
+            await _contex.SaveChangesAsync();
+
             Console.WriteLine($"Добавил новый Title: {request.TitleName}");
             return Ok("Success post in search service");
         }
