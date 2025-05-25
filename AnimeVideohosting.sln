@@ -33,6 +33,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbUpdater", "DbUpdater\DbUp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "TestProject\TestProject.csproj", "{DB7F898F-9834-4FC3-9248-316EB797D2F9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{6069A1EA-D170-4099-A7C1-87A33A9B944F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{A1362252-B1C0-4197-A4C6-EB0B663C3515}"
+	ProjectSection(SolutionItems) = preProject
+		dotnet-desktop.yml = dotnet-desktop.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProjectNUnit", "TestProjectNUnit\TestProjectNUnit.csproj", "{9CCB04B7-DD57-4473-B2FB-51331045C3F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,9 +92,16 @@ Global
 		{DB7F898F-9834-4FC3-9248-316EB797D2F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB7F898F-9834-4FC3-9248-316EB797D2F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB7F898F-9834-4FC3-9248-316EB797D2F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CCB04B7-DD57-4473-B2FB-51331045C3F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CCB04B7-DD57-4473-B2FB-51331045C3F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CCB04B7-DD57-4473-B2FB-51331045C3F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CCB04B7-DD57-4473-B2FB-51331045C3F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A1362252-B1C0-4197-A4C6-EB0B663C3515} = {6069A1EA-D170-4099-A7C1-87A33A9B944F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {324881AF-1A02-470D-88B1-98249F3A97E2}
