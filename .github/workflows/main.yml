@@ -1,4 +1,4 @@
-name: Build and Run Tests
+name: Build and Run Tests with Docker Compose
 
 on:
   push:
@@ -9,26 +9,38 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and start services with Docker Compose
+        run: |
+          docker-compose up -d --build
+
+      - name: Wait for GatewayService to be ready
+        run: |
+          timeout=60
+          while [ $timeout -gt 0 ]; do
+            curl -s http://localhost:5000/Test | grep -q "Hello from Gataway!" && echo "Gateway is UP" && exit 0
+            sleep 5
+            timeout=$((timeout - 5))
+          done
+          echo "GatewayService did not start in time"
+          exit 1
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           version: '8.x'
 
-      - name: Restore SearchService
-        run: dotnet restore SearchService/SearchService.csproj
-
       - name: Restore Test Project
         run: dotnet restore TestProjectNUnit/TestProjectNUnit.csproj
 
-      - name: Build SearchService
-        run: dotnet build SearchService/SearchService.csproj --configuration Release --no-restore
-
-      - name: Build Test Project
-        run: dotnet build TestProjectNUnit/TestProjectNUnit.csproj --configuration Release --no-restore
-
-      - name: Run Unit Tests
-        run: dotnet test TestProjectNUnit/TestProjectNUnit.csproj --configuration Release --no-build
+      - name: Run Integration Tests
+        run: |
+          cd TestProjectNUnit
+          dotnet test TestProjectNUnit.csproj --logger trx --results-directory ./test-results
