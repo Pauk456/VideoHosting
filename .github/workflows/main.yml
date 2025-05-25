@@ -1,0 +1,34 @@
+name: Build and Run Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          version: '8.x'
+
+      - name: Restore SearchService
+        run: dotnet restore SearchService/SearchService.csproj
+
+      - name: Restore Test Project
+        run: dotnet restore TestProjectNUnit/TestProjectNUnit.csproj
+
+      - name: Build SearchService
+        run: dotnet build SearchService/SearchService.csproj --configuration Release --no-restore
+
+      - name: Build Test Project
+        run: dotnet build TestProjectNUnit/TestProjectNUnit.csproj --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: dotnet test TestProjectNUnit/TestProjectNUnit.csproj --configuration Release --no-build
