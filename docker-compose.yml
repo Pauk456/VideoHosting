@@ -80,7 +80,8 @@ services:
     depends_on:
       - titleservice
       - videoservice
-  
+      - searchservice
+
   Dbtitlerecommendationservice:
      image: postgres:17
      environment:
@@ -131,6 +132,7 @@ services:
       - db
       - titleservice
       - serverinteraction
+      - gatewayservice
     environment:
       TitleServiceUrl: "http://titleservice:5006"
 
