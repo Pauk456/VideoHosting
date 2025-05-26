@@ -79,11 +79,11 @@ public class TitleController : Controller
 
         var previewPath = series.PreviewPath;
 
-        string directoryPath = previewPath.Substring(0, previewPath.LastIndexOf('\\'));
+        string directoryPath = previewPath.Substring(0, previewPath.LastIndexOf('/'));
 
-        var absoluteUri = new Uri(new Uri("http://host.docker.internal:4999"), 
-            $"get-config?filePath={directoryPath}\\titleConfig.json");
-
+        var absoluteUri = new Uri(new Uri("http://serverinteraction:4999"), 
+            $"get-config?filePath={directoryPath}/titleConfig.json");
+        Console.WriteLine(absoluteUri);
         var response = await _httpClient.GetAsync(
             absoluteUri,
             HttpCompletionOption.ResponseHeadersRead

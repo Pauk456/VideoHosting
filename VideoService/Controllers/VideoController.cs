@@ -40,7 +40,9 @@ public class VideoController : ControllerBase
             return NotFound();
         }
 
-        var absoluteUri = new Uri(new Uri("http://host.docker.internal:4999"), $"stream-video?filePath={episode.FilePath}");
+        var absoluteUri = new Uri(new Uri("http://serverinteraction:4999"), $"stream-video?filePath={episode.FilePath}");
+
+        Console.WriteLine(absoluteUri);
 
         var response = await _httpClient.GetAsync(
             absoluteUri,

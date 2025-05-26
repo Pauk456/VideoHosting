@@ -155,7 +155,7 @@ public class GatewayController : ControllerBase
     {
         try
         {
-            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriVideoAndImageService}/{id}");
+            var response = await _httpClient.GetAsync($"{ServicesAddresses.uriVideoService}/{id}");
 
             response.EnsureSuccessStatusCode();
 

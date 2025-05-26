@@ -36,7 +36,7 @@ public class ImgController : ControllerBase
     {
         var series = await _context.AnimeSeries.FindAsync(id);
 
-        var absoluteUri = new Uri(new Uri("http://host.docker.internal:4999"), $"get-img?filePath={series.PreviewPath}");
+        var absoluteUri = new Uri(new Uri("http://serverinteraction:4999"), $"get-img?filePath={series.PreviewPath}");
 
         // Используем относительный путь!
         var response = await _httpClient.GetAsync(

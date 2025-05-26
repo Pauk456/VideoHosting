@@ -39,6 +39,8 @@ app.MapGet("/get-structure", (HttpContext context) =>
                 if (Path.GetExtension(file) == ".jpg")
                 {
                     animeSeries.PreviewPath = file.Split("data/Anime/")[1];
+
+                    Console.WriteLine(animeSeries.PreviewPath);
                 }
             }
         }
@@ -93,15 +95,17 @@ app.MapGet("/get-structure", (HttpContext context) =>
 //вынесу в контроллер если не будет лень
 app.MapGet("/get-img", async (HttpContext context, string filePath) =>
 {
-    var basePath = @"data\Anime";
+    var basePath = @"data/Anime";
     var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath));
 
-    if (!fullPath.StartsWith(basePath))
-    {
-        context.Response.StatusCode = 403;
-        await context.Response.WriteAsync("Access denied");
-        return;
-    }
+    Console.WriteLine(fullPath);
+
+    //if (!fullPath.StartsWith(basePath))
+    //{
+    //    context.Response.StatusCode = 403;
+    //    await context.Response.WriteAsync("Access denied");
+    //    return;
+    //}
     if (!File.Exists(fullPath))
     {
         context.Response.StatusCode = 404;
@@ -119,12 +123,14 @@ app.MapGet("/get-config", async (HttpContext context, string filePath) =>
     var basePath = @"data/Anime";
     var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath));
 
-    if (!fullPath.StartsWith(basePath))
-    {
-        context.Response.StatusCode = 403;
-        await context.Response.WriteAsync("Access denied");
-        return;
-    }
+    Console.WriteLine(fullPath);
+
+    //if (!fullPath.StartsWith(basePath))
+    //{
+    //    context.Response.StatusCode = 403;
+    //    await context.Response.WriteAsync("Access denied");
+    //    return;
+    //}
     if (!File.Exists(fullPath))
     {
         context.Response.StatusCode = 404;
@@ -143,12 +149,14 @@ app.MapGet("/stream-video", async (HttpContext context, string filePath) =>
     var basePath = @"data/Anime";
     var fullPath = Path.GetFullPath(Path.Combine(basePath, filePath));
 
-    if (!fullPath.StartsWith(basePath))
-    {
-        context.Response.StatusCode = 403;
-        await context.Response.WriteAsync("Access denied");
-        return;
-    }
+    Console.WriteLine(fullPath);
+
+    //if (!fullPath.StartsWith(basePath))
+    //{
+    //    context.Response.StatusCode = 403;
+    //    await context.Response.WriteAsync("Access denied");
+    //    return;
+    //}
 
     if (!File.Exists(fullPath))
     {
