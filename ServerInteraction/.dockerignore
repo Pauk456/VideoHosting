@@ -1,0 +1,37 @@
+# Build output folders
+bin/
+obj/
+
+# IDE-specific files
+*.sln
+*.user
+*.vs/
+*.idea/
+*.swp
+*.suo
+*.tmp
+*.log
+*.pid
+*.seed
+*.lock
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Node.js / Frontend artifacts
+node_modules/
+dist/
+build/
+
+# Configuration and secrets
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Documentation and misc
+*.md
+LICENSE
+README*

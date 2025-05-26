@@ -15,7 +15,7 @@ public class FileStructureUpdateService : BackgroundService
 
     private readonly string uriTitleService = "http://titleservice:5006/api/title";
     private readonly string uriGateWayService = "http://gatewayservice:5004/api/inner";
-    private readonly string uriServerInteraction = "http://host.docker.internal:4999";
+    private readonly string uriServerInteraction = "http://serverinteraction:4999";
 
     public FileStructureUpdateService(
         IServiceProvider serviceProvider,
