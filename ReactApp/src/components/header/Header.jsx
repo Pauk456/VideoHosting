@@ -1,27 +1,45 @@
 import React, {useEffect, useRef, useState} from 'react';
 import SearchListElem from "./SearchListElem.jsx";
+import {data} from "react-router-dom";
 
 const Header = () => {
     const searchInputRef = useRef(null);
     const [showDroplist, setShowDroplist] = useState(false)
     const [dropList, setDroplist] = useState([{title: "Lazarus", imgUrl: "/images/lazarus.jpg"}, {title: "Re:Zero", imgUrl: "/images/rezero.jpg"}])
     const [inputText, setInputText] = useState('')
-
+    // http://localhost:5004/api/titleTag={inputText}&filter=TitleId
     const handleSearchToggle = () => {
         if (searchInputRef.current) {
             if (searchInputRef.current.style.display === 'none') {
                 searchInputRef.current.style.display = 'block';
-                setShowDroplist(true);
+                // setShowDroplist(true);
+
             }
             else {
                 searchInputRef.current.style.display = 'none';
                 setShowDroplist(false);
+                setInputText('');
+                searchInputRef.current.value = '';
             }
         }
     };
 
 
     useEffect(() => {
+        fetch(`http://localhost:5004/api/titleTag=${inputText}&filter=TitleId,TitleName`)
+            .then(response => {
+                if (!response.ok) {
+                    setDroplist([]);
+                    setShowDroplist(false);
+                    throw new Error(`Ошибка HTTP: ${response.status} ${response.statusText}`);
+
+                }
+                return response.json();
+            }).then(data => {
+                setShowDroplist(true);
+                setDroplist([{id: data.id, title: data.name, imgUrl: `http://localhost:5001/api/img/${data.id}`}])
+            }
+        )
         // Запрос на поиск аниме
         // Обновление списка аниме
     }, [inputText]);
@@ -40,7 +58,7 @@ const Header = () => {
                                 {dropList.map((anime, idx) => (
                                     <SearchListElem
                                         key={idx}
-                                        animeInfo={{ title: anime.title, imgUrl: anime.imgUrl }}
+                                        animeInfo={{id: anime.id, title: anime.title, imgUrl: anime.imgUrl }}
                                     />
                                 ))}
 
