@@ -7,6 +7,7 @@ using UserService.Models;
 
 namespace UserService.Controllers;
 
+using Microsoft.AspNetCore.Authorization;
 using System;
 using UserService.Models;
 
@@ -36,7 +37,7 @@ public class UserController : Controller
             .ToListAsync();
         return Ok(animeFromUser);
     }
-
+    [Authorize]
     [HttpPost("AddAnime")]
     public async Task<ActionResult<UserAnimeAllDTO>> AddAnimeToUser([FromBody] UserAnimeAllDTO anime)
     {
@@ -52,6 +53,7 @@ public class UserController : Controller
         return Ok($"{anime.IdAnime} успешно добавлено в список");
     }
 
+    [Authorize]
     [HttpPost("UpdateRating")]
     public async Task<ActionResult<UserAnimeRatingDTO>> UpdateRating([FromBody] UserAnimeRatingDTO anime)
     {
@@ -62,10 +64,12 @@ public class UserController : Controller
             return NotFound($"Запись с ID {anime.IdAnime} не найдена");
         }
         userAnime.Rating = anime.Rating;
+        var response = new UserAnimeDTO { Rating = userAnime.Rating, IdAnime = userAnime.IdAnime };
         await _context.SaveChangesAsync();
-        return Ok("Оценка обновлена");
+        return Ok(response);
     }
 
+    [Authorize]
     [HttpPost("UpdateStatus")]
     public async Task<ActionResult<UserAnimeStatusDTO>> UpdateStatus([FromBody] UserAnimeStatusDTO anime)
     {
@@ -77,17 +81,18 @@ public class UserController : Controller
         }
         userAnime.Status = anime.Status;
         await _context.SaveChangesAsync();
-        return Ok("Стату обновлен");
+        return Ok("Статус обновлен");
     }
 
-    [HttpPost("DeleteAnime")]
-    public async Task<ActionResult<UserAnime>> DeleteAnime([FromBody] UserAnime anime)
+    [Authorize]
+    [HttpPost("DeleteAnime/{idUser}/{idAnime}")]
+    public async Task<ActionResult<UserAnime>> DeleteAnime(int idUser, int idAnime)
     {
         var userAnime = await _context.UserAnime
-        .FirstOrDefaultAsync(a => (a.IdAnime == anime.IdAnime && a.IdUser == anime.IdUser));
+        .FirstOrDefaultAsync(a => (a.IdAnime == idAnime && a.IdUser == idUser));
         if (userAnime == null)
         {
-            return NotFound($"Запись с ID {anime.IdAnime} не найдена");
+            return NotFound($"Запись с ID {idAnime} не найдена");
         }
         _context.UserAnime.Remove(userAnime);
         await _context.SaveChangesAsync();
