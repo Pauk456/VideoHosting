@@ -7,29 +7,17 @@ const GetOngoings = () => {
     const [animes, setAnimes] = useState([]);
 
     useEffect(() => {
-        fetch(`http://localhost:5006/api/title/getRecentEpisodes`)
-            .then(res => res.json())
-            .then(listData => {
-                const idList = listData.map(item => item.titleId);
-                return Promise.all(
-                    idList.map(id =>
-                        fetch(`http://localhost:5006/api/title/getAnimeName/${id}`)
-                            .then(res => res.json())
-                            .then(detail => ({
-                                id,
-                                title: detail.name,
-                                episodes: detail.episodeNumber,
-                            }))
-                    )
-                );
-            }).then(animes => setAnimes(animes));
+        fetch(`http://localhost:5004/api/getManyTitles/filter=recent`)
+            .then(res => res.json()).then(data => {setAnimes(data.recent)})
     }, []);
 
-    return (
-        animes.map((anime) => (
-            <OngoingElem animeInfo={{title: anime.title, imgUrl: `http://localhost:5001/api/img/${anime.id}`, id: anime.episodes}} />
-        ))
-    );
+    return animes.map((anime) => {
+        const totalEpisodes = anime.seasons?.reduce((sum, season) => sum + (season.episodes?.length || 0), 0);
+
+        return (
+                <OngoingElem animeInfo={{title: 'Запрос не возвращает название :(', imgUrl: `http://localhost:5001/api/img/${anime.idTitle}`, id: anime.idTitle, episodes: totalEpisodes}} />
+        );
+    });
 };
 
 export default GetOngoings;

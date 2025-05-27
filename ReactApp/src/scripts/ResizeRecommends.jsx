@@ -12,9 +12,9 @@ const ResizeRecommends = () => {
     const [cols, setCols] = useState(0);
 
     useEffect(() => {
-        fetch(`http://localhost:5006/api/title/all`)
+        fetch(`http://localhost:5004/api/getManyTitles/filter=recommends`)
             .then(res => res.json())
-            .then(animes => setAnimes(animes));
+            .then(animes=> setAnimes(animes.reccomends));
     }, []);
 
     // измеряем при монтировании и на ресайзе
@@ -40,7 +40,7 @@ const ResizeRecommends = () => {
     return (
         <ul className="recommend-anime-list" ref={containerRef}>
                 {animes.slice(0, cols).map((anime) => (
-                    <RecommendAnime animeInfo={{title: anime.name, imgUrl: `http://localhost:5001/api/img/${anime.seriesId}`, id: anime.seriesId}} />
+                    <RecommendAnime animeInfo={{title: anime.titleName, imgUrl: `http://localhost:5001/api/img/${anime.idTitle}`, id: anime.idTitle}} />
                 ))}
         </ul>
     );

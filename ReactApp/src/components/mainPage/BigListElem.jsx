@@ -9,8 +9,8 @@ const BigListElem = (props) => {
                 <div className="big-list-elem-container hover-effect">
                     <img className="big-list-poster-img" src={props.animeInfo.imgUrl} alt=""/>
                     <div className="anime-description-container">
-                        <p className="anime-link elem-text-big">{props.animeInfo.year}</p>
-                        <p className="elem-text-medium">{props.animeInfo.titleEng}</p>
+                        <p className="anime-link elem-text-big">{props.animeInfo.title}</p>
+                        <p className="elem-text-medium">{props.animeInfo.year}</p>
                         <p className="story-description elem-text-small">{props.animeInfo.description}</p>
                     </div>
 
