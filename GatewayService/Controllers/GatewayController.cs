@@ -8,6 +8,10 @@ using System.Text;
 using Microsoft.AspNetCore.Cors;
 using static System.Net.WebRequestMethods;
 using System.IO;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using static GatewayService.Controllers.GatewayController;
 
 [EnableCors("AllowAll")]
 [ApiController]
@@ -100,7 +104,7 @@ public class GatewayController : ControllerBase
         }
     }
 
-    [HttpGet("getManyTitle/filter={filter}")]
+    [HttpGet("getManyTitles/filter={filter}")]
     public async Task<ActionResult<ManyTitleDTO>> GetManyTitle(string filter)
     {
         var requestedFields = filter?.Split(',')
@@ -112,7 +116,7 @@ public class GatewayController : ControllerBase
 
         try
         {
-            if (requestedFields.Contains("reccomends"))
+            if (requestedFields.Contains("recommends"))
                 result.reccomends = await GetReccomends();
 
             if (requestedFields.Contains("all"))
@@ -125,8 +129,8 @@ public class GatewayController : ControllerBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка про обработке запроса: getManyTitle/filter={filter}");
-            return StatusCode(500, "Internal server error");
+            Console.WriteLine($"Ошибка {ex.Message} про обработке запроса: getManyTitle/filter={filter}");
+            return StatusCode(500, "Internal server error:");
         }
     }
 
@@ -277,69 +281,158 @@ public class GatewayController : ControllerBase
             return null;
         }
     }
-
+    private record DTOgetAll(int seriesId, string name);
+    private record AnimeDto(int idTitle, string titleName, float? rating, JsonElement description);
+    private class TitleRatingData__
+    {
+        public int IdTitle { get; set; }
+        public float? Rating { get; set; }
+        public int CountReviews { get; set; }
+    }
     private async Task<JsonElement?> GetAll()
     {
+        List<DTOgetAll> titles;
         try
         {
             var response = await _httpClient.GetAsync($"{ServicesAddresses.uriTitleService}/all");
 
             response.EnsureSuccessStatusCode();
 
-            using var stream = await response.Content.ReadAsStreamAsync();
-            using var doc = await JsonDocument.ParseAsync(stream);
+            var stream = await response.Content.ReadAsStreamAsync();
+            titles = await JsonSerializer.DeserializeAsync<List<DTOgetAll>>(stream);
 
-            return doc.RootElement.Clone();
+            if (titles == null)
+            {
+                Console.WriteLine("Не получено данных или пустой список");
+                return null;
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Ошибка при получении всех аниме: {ex.Message}");
             return null;
         }
-    }
 
+        var TitleDTOsend = new List<AnimeDto>();
+
+        foreach (var title in titles)
+        { 
+            var ratingJson = await GetRating(title.seriesId);
+
+            var animeDto = JsonSerializer.Deserialize<TitleRatingData__>(ratingJson.Value.GetRawText());
+
+            var desc = await GetTitleDescription(title.seriesId) ?? new JsonElement();
+
+            TitleDTOsend.Add(new(
+                idTitle: title.seriesId,
+                titleName: title.name,
+                rating: animeDto.Rating,
+            description: desc
+            ));
+        }
+
+        var jsonElement = JsonSerializer.SerializeToElement(TitleDTOsend);
+
+        return jsonElement;
+    }
     private async Task<JsonElement?> GetReccomends()
     {
+        List<TitleRatingDto> ratings;
+
         try
         {
             var response = await _httpClient.GetAsync($"{ServicesAddresses.uriRecommendationService}/top");
 
             response.EnsureSuccessStatusCode();
 
-            using var stream = await response.Content.ReadAsStreamAsync();
-            using var doc = await JsonDocument.ParseAsync(stream);
+            var stream = await response.Content.ReadAsStreamAsync();
 
-            return doc.RootElement.Clone();
+            ratings = await JsonSerializer.DeserializeAsync<List<TitleRatingDto> >(stream);
+
+            if (ratings == null)
+            {
+                Console.WriteLine("Не получено данных или пустой список");
+                return null;
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Ошибка при получении рекомендованных аниме: {ex.Message}");
             return null;
         }
+
+        foreach(var raitingDTO in ratings)
+        {
+            raitingDTO.titleName = await GetTitleName(raitingDTO.idTitle);
+        }
+
+        var jsonString = JsonSerializer.Serialize(ratings);
+        var jsonElement = JsonSerializer.Deserialize<JsonElement>(jsonString);
+
+        return jsonElement;
     }
+    private record recentDTO(int idTitle, int episodeNumber, JsonElement seasons);
+    private record NewEpisodeData____(int episodeNumber, int titleId);
 
     private async Task<JsonElement?> GetRecent()
     {
+        List<NewEpisodeData____> titles;
         try
         {
             var response = await _httpClient.GetAsync($"{ServicesAddresses.uriTitleService}/getRecentEpisodes");
 
             response.EnsureSuccessStatusCode();
 
-            using var stream = await response.Content.ReadAsStreamAsync();
-            using var doc = await JsonDocument.ParseAsync(stream);
-
-            return doc.RootElement.Clone();
+            var stream = await response.Content.ReadAsStreamAsync();
+            titles = await JsonSerializer.DeserializeAsync<List<NewEpisodeData____>>(stream);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Ошибка при получении недавних аниме: {ex.Message}");
             return null;
         }
+
+        var sendDTO = new List<recentDTO>();
+
+        foreach (var title in titles)
+        {
+            sendDTO.Add(new (
+                idTitle: title.titleId,
+                episodeNumber: title.episodeNumber,
+                seasons: await GetSeasons(title.titleId) ?? new JsonElement()
+            )
+            );
+        }
+
+        var jsonElement = JsonSerializer.SerializeToElement(sendDTO);
+
+        return jsonElement;
     }
 
     private class AnimeNameResponse
     {
         public string name { get; set; }
+    }
+
+    private class TitleRatingDto
+    {
+        public int idTitle { get; set; }
+
+        public string? titleName { get; set; }
+
+        public float? rating { get; set; }
+
+        public int countReviews { get; set; }
+    }
+
+    public class TitleDTOs
+    {
+        public int idTitle { get; set; }
+
+        public string? titleName { get; set; }
+
+        public float? rating { get; set; }
+
+
     }
 }
