@@ -2,7 +2,7 @@
 
 namespace AuthorizationService.Model
 {
-    public class RegisterRequest
+    public class RegisterRequestDTO
     {
         [Required]
         public string Password { get; set; }
@@ -11,6 +11,9 @@ namespace AuthorizationService.Model
         public string PasswordConfirmation { get; set; }
 
         [Required]
-        public string Username { get; set; }
+        public string Login { get; set; }
+
+        [Required]
+        public string Email { get; set; }
     }
 }

@@ -3,6 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AuthorizationService.DbModels;
 using AuthorizationService.Models;
+using AuthorizationService.Model;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 
 namespace AuthorizationService.Controllers;
@@ -14,13 +19,16 @@ public class AuthorizationController : Controller
 
     private readonly ApplicationDbContext _context;
 
-    public AuthorizationController(ApplicationDbContext context)
+    private string secretKey;
+
+    public AuthorizationController(ApplicationDbContext context, IConfiguration configuration)
     {
         _context = context;
+        secretKey = configuration.GetValue<string>("ApiSettings:Secret");
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult> Register([FromBody] UserData userData)
+    public async Task<ActionResult> Register([FromBody] RegisterRequestDTO userData)
     {
         if (await _context.Users.AnyAsync(u => u.Login == userData.Login))
         {
@@ -35,6 +43,11 @@ public class AuthorizationController : Controller
         if (string.IsNullOrWhiteSpace(userData.Email) || !IsValidEmail(userData.Email))
         {
             return BadRequest("Некорректный email");
+        }
+
+        if (userData.Password != userData.PasswordConfirmation)
+        {
+            return BadRequest("Пароли не совпадают");
         }
 
         if (userData.Login.Length < 3)
@@ -63,9 +76,35 @@ public class AuthorizationController : Controller
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult> Login([FromBody] LoginRequest request)
+    public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO request)
     {
-        throw new NotImplementedException();
+        var user = _context.Users.FirstOrDefault(u => (u.Login == request.Login || u.Email == request.Email));
+        var ans = PasswordHasher.VerifyPassword(request.Password, user.Password);
+        if (user == null && !ans)
+        {
+            return BadRequest(PasswordHasher.HashPassword(request.Password));
+        }
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(secretKey);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.Name, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.Name, user.Login)
+            }),
+            Expires = DateTime.UtcNow.AddDays(7),
+            SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var loginResponseDTO = new LoginResponseDTO()
+        {
+            Token = tokenHandler.WriteToken(token),
+            User = user
+        };
+        return Ok(loginResponseDTO);
     }
 
     private bool IsValidEmail(string email)
