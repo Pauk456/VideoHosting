@@ -1,12 +1,15 @@
 import React, {useEffect, useRef, useState} from 'react';
 import SearchListElem from "./SearchListElem.jsx";
 import {data} from "react-router-dom";
+import RegistrationForm from "./RegistrationForm.jsx";
 
 const Header = () => {
     const searchInputRef = useRef(null);
     const [showDroplist, setShowDroplist] = useState(false)
     const [dropList, setDroplist] = useState([{title: "Lazarus", imgUrl: "/images/lazarus.jpg"}, {title: "Re:Zero", imgUrl: "/images/rezero.jpg"}])
     const [inputText, setInputText] = useState('')
+    const [showRegistration, setShowRegistration] = useState(false);
+
     // http://localhost:5004/api/titleTag={inputText}&filter=TitleId
     const handleSearchToggle = () => {
         if (searchInputRef.current) {
@@ -32,7 +35,6 @@ const Header = () => {
                     setDroplist([]);
                     setShowDroplist(false);
                     throw new Error(`Ошибка HTTP: ${response.status} ${response.statusText}`);
-
                 }
                 return response.json();
             }).then(data => {
@@ -46,6 +48,8 @@ const Header = () => {
 
     return (
         <header>
+            {showRegistration && <div className="overlay" onClick={() => setShowRegistration(false)}></div>}
+            {showRegistration && <RegistrationForm onClose={() => setShowRegistration(false)} />}
             <div className="header-container container">
                 <div className="logo-container">
                     <a className="logo" href="/">AniWorld</a>
@@ -70,10 +74,10 @@ const Header = () => {
                 </div>
 
 
-                <a className="header-auth-button">
-                    <button className="auth-button-icon"></button>
+                <button className="header-auth-button"  onClick={() => setShowRegistration(true)}>
+                    <div className="auth-button-icon"></div>
                     <p className="auth-button-text container-title-text">Войти</p>
-                </a>
+                </button>
             </div>
         </header>
     );
