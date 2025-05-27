@@ -3,7 +3,6 @@ using UserService.DbModels;
 
 public class ApplicationDbContext : DbContext
 {
-    public DbSet<Users> Users { get; set; }
     public DbSet<UserAnime> UserAnime {  get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -15,10 +14,6 @@ public class ApplicationDbContext : DbContext
     {
         modelBuilder.Entity<UserAnime>()
             .HasKey(ua => new { ua.IdUser, ua.IdAnime }); // Составной ключ
-
-        
-
-        modelBuilder.Entity<Users>().ToTable("users");
 
         base.OnModelCreating(modelBuilder);
     }

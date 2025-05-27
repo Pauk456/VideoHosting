@@ -7,6 +7,7 @@ using UserService.Models;
 
 namespace UserService.Controllers;
 
+using Microsoft.AspNetCore.Authorization;
 using System;
 using UserService.Models;
 
@@ -19,64 +20,6 @@ public class UserController : Controller
     public UserController(ApplicationDbContext context)
     {
         _context = context;
-    }
-
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Users>> GetUser(int id)
-    {
-        var user = await _context.Users
-           .Where(ua => ua.Id == id)
-           .Select(ua => new UserData
-           {
-               Login = ua.Login,
-               Email = ua.Email,
-               Password = ua.Password
-           })
-           .ToListAsync();
-        return Ok(user);
-    }
-
-    [HttpPost("create")]
-    public async Task<IActionResult> Register([FromBody] UserData userData)
-    {
-        if (await _context.Users.AnyAsync(u => u.Login == userData.Login))
-        {
-            return BadRequest("Пользователь с таким именем уже существует");
-        }
-
-        if (await _context.Users.AnyAsync(u => u.Email == userData.Email)) {
-            return BadRequest("Пользователь с такой почтой уже существует");
-        }
-
-        if (string.IsNullOrWhiteSpace(userData.Email) || !IsValidEmail(userData.Email))
-        {
-            return BadRequest("Некорректный email");
-        }
-
-        if (userData.Login.Length < 3)
-        {
-            return BadRequest("Имя пользователя должно быть больше 2 символов");
-        }
-
-        if (userData.Password.Length < 6)
-        {
-            return BadRequest("Пароль должен содержать больше 5 символов");
-        }
-
-        string passwordHash = PasswordHasher.HashPassword(userData.Password);
-
-        var user = new Users
-        {
-            Login = userData.Login,
-            Password = passwordHash,
-            Email = userData.Email
-        };
-
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
-
-        return Ok(user.Id);
     }
 
     [HttpGet("GetAnime/{id}")]
@@ -94,7 +37,7 @@ public class UserController : Controller
             .ToListAsync();
         return Ok(animeFromUser);
     }
-
+    [Authorize]
     [HttpPost("AddAnime")]
     public async Task<ActionResult<UserAnimeAllDTO>> AddAnimeToUser([FromBody] UserAnimeAllDTO anime)
     {
@@ -110,6 +53,7 @@ public class UserController : Controller
         return Ok($"{anime.IdAnime} успешно добавлено в список");
     }
 
+    [Authorize]
     [HttpPost("UpdateRating")]
     public async Task<ActionResult<UserAnimeRatingDTO>> UpdateRating([FromBody] UserAnimeRatingDTO anime)
     {
@@ -120,10 +64,12 @@ public class UserController : Controller
             return NotFound($"Запись с ID {anime.IdAnime} не найдена");
         }
         userAnime.Rating = anime.Rating;
+        var response = new UserAnimeDTO { Rating = userAnime.Rating, IdAnime = userAnime.IdAnime };
         await _context.SaveChangesAsync();
-        return Ok("Оценка обновлена");
+        return Ok(response);
     }
 
+    [Authorize]
     [HttpPost("UpdateStatus")]
     public async Task<ActionResult<UserAnimeStatusDTO>> UpdateStatus([FromBody] UserAnimeStatusDTO anime)
     {
@@ -135,33 +81,21 @@ public class UserController : Controller
         }
         userAnime.Status = anime.Status;
         await _context.SaveChangesAsync();
-        return Ok("Стату обновлен");
+        return Ok("Статус обновлен");
     }
 
-    [HttpPost("DeleteAnime")]
-    public async Task<ActionResult<UserAnime>> DeleteAnime([FromBody] UserAnime anime)
+    [Authorize]
+    [HttpPost("DeleteAnime/{idUser}/{idAnime}")]
+    public async Task<ActionResult<UserAnime>> DeleteAnime(int idUser, int idAnime)
     {
         var userAnime = await _context.UserAnime
-        .FirstOrDefaultAsync(a => (a.IdAnime == anime.IdAnime && a.IdUser == anime.IdUser));
+        .FirstOrDefaultAsync(a => (a.IdAnime == idAnime && a.IdUser == idUser));
         if (userAnime == null)
         {
-            return NotFound($"Запись с ID {anime.IdAnime} не найдена");
+            return NotFound($"Запись с ID {idAnime} не найдена");
         }
         _context.UserAnime.Remove(userAnime);
         await _context.SaveChangesAsync();
         return Ok("Аниме удалено");
-    }
-
-    private bool IsValidEmail(string email)
-    {
-        try
-        {
-            var addr = new System.Net.Mail.MailAddress(email);
-            return addr.Address == email;
-        }
-        catch
-        {
-            return false;
-        }
     }
 }
