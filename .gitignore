@@ -6,6 +6,8 @@
 *.user
 *.sln.docstates
 
+!.github/workflows/
+
 # Build results
 
 [Dd]ebug/

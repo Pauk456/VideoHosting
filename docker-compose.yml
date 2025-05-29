@@ -1,6 +1,13 @@
 services:
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30 --include-restarting
+    restart: unless-stopped
+
   frontend:
-    image: frontend
+    image: ghcr.io/pauk456/frontend:latest
     build:
       context: ./ReactApp 
     ports:
@@ -12,7 +19,7 @@ services:
       - gatewayservice
 
   serverinteraction:
-    image: serverinteraction
+    image: ghcr.io/pauk456/serverinteraction:latest
     build:
       context: ./ServerInteraction
     ports:
@@ -33,7 +40,7 @@ services:
       - "5432:5432"
 
   videoservice:
-    image: videoservice
+    image: ghcr.io/pauk456/videoservice:latest
     build:
       context: ./VideoService
     ports:
@@ -42,7 +49,7 @@ services:
       - db
 
   titleservice:
-    image: titleservice
+    image: ghcr.io/pauk456/titleservice:latest
     build:
       context: ./TitleService
     ports:
@@ -63,7 +70,7 @@ services:
       - "5433:5432"
       
   searchservice:
-    image: searchservice
+    image: ghcr.io/pauk456/searchservice:latest
     build:
       context: ./SearchService
     ports:
@@ -72,7 +79,7 @@ services:
       - searchdb
  
   gatewayservice:
-    image: gateway
+    image: ghcr.io/pauk456/gatewayservice:latest
     build:
       context: ./GatewayService
     ports:
@@ -95,7 +102,7 @@ services:
          - "5434:5432"
 
   titlerecommendationservice:
-    image: titlerecommendation
+    image: ghcr.io/pauk456/titlerecommendationservice:latest
     build:
         context: ./TitleRecommendationService
     ports:
@@ -116,7 +123,7 @@ services:
          - "5435:5432"
 
   userservice:
-    image: userservice
+    image: ghcr.io/pauk456/userservice:latest
     build:
         context: ./UserService
     ports:
@@ -125,7 +132,7 @@ services:
        - dbuserservice
 
   dbupdater:
-    image: dbupdater
+    image: ghcr.io/pauk456/dbupdater:latest
     build:
       context: ./DbUpdater
     depends_on:

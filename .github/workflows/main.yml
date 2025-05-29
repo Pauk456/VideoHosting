@@ -1,14 +1,23 @@
-name: Build and Run Tests with Docker Compose
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-  build-and-test:
+  build-test-deploy:
+    name: Build, Test, and Deploy Services
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    env:
+      IMAGE_PREFIX: ghcr.io/pauk456
 
     steps:
       - name: Checkout code
@@ -54,3 +63,85 @@ jobs:
         run: |
           cd TestProjectNUnit
           dotnet test --logger trx --results-directory ./test-results
+
+      # 🔒 После успешных тестов начинается сборка и деплой образов
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------
+      # Фронтенд
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ReactApp
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/frontend:latest
+
+      # ServerInteraction
+      - name: Build and push ServerInteraction
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ServerInteraction
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/serverinteraction:latest
+
+      # VideoService
+      - name: Build and push VideoService
+        uses: docker/build-push-action@v5
+        with:
+          context: ./VideoService
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/videoservice:latest
+
+      # TitleService
+      - name: Build and push TitleService
+        uses: docker/build-push-action@v5
+        with:
+          context: ./TitleService
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/titleservice:latest
+
+      # SearchService
+      - name: Build and push SearchService
+        uses: docker/build-push-action@v5
+        with:
+          context: ./SearchService
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/searchservice:latest
+
+      # GatewayService
+      - name: Build and push GatewayService
+        uses: docker/build-push-action@v5
+        with:
+          context: ./GatewayService
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/gatewayservice:latest
+
+      # TitleRecommendationService
+      - name: Build and push TitleRecommendationService
+        uses: docker/build-push-action@v5
+        with:
+          context: ./TitleRecommendationService
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/titlerecommendationservice:latest
+
+      # UserService
+      - name: Build and push UserService
+        uses: docker/build-push-action@v5
+        with:
+          context: ./UserService
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/userservice:latest
+
+      # DbUpdater
+      - name: Build and push DbUpdater
+        uses: docker/build-push-action@v5
+        with:
+          context: ./DbUpdater
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/dbupdater:latest
