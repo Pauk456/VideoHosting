@@ -371,7 +371,7 @@ public class GatewayController : ControllerBase
 
         return jsonElement;
     }
-    private record recentDTO(int idTitle, int episodeNumber, JsonElement seasons);
+    private record recentDTO(int idTitle, string titleName, int episodeNumber, JsonElement seasons);
     private record NewEpisodeData____(int episodeNumber, int titleId);
 
     private async Task<JsonElement?> GetRecent()
@@ -398,6 +398,7 @@ public class GatewayController : ControllerBase
         {
             sendDTO.Add(new (
                 idTitle: title.titleId,
+                titleName: await GetTitleName(title.titleId),
                 episodeNumber: title.episodeNumber,
                 seasons: await GetSeasons(title.titleId) ?? new JsonElement()
             )
