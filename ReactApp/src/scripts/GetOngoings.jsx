@@ -15,7 +15,7 @@ const GetOngoings = () => {
         const totalEpisodes = anime.seasons?.reduce((sum, season) => sum + (season.episodes?.length || 0), 0);
 
         return (
-                <OngoingElem animeInfo={{title: 'Запрос не возвращает название :(', imgUrl: `http://localhost:5001/api/img/${anime.idTitle}`, id: anime.idTitle, episodes: totalEpisodes}} />
+                <OngoingElem animeInfo={{title: anime.titleName, imgUrl: `http://localhost:5001/api/img/${anime.idTitle}`, id: anime.idTitle, episodes: totalEpisodes}} />
         );
     });
 };
