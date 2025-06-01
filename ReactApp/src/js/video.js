@@ -11,9 +11,9 @@ window.addEventListener("DOMContentLoaded", () => {
     //   return;
     // }
 
-    // fetch(`http://localhost:5006/api/title/getSeasonsAndEpisodes/${id}`)
+    // fetch(`http://193.53.126.242:5006/api/title/getSeasonsAndEpisodes/${id}`)
 
-    fetch(`http://localhost:5006/api/title/getSeasonsAndEpisodes/${id}`)
+    fetch(`http://193.53.126.242:5006/api/title/getSeasonsAndEpisodes/${id}`)
     .then(response => response.json())
     .then(data => {
       console.log(data);
@@ -53,7 +53,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const episodeId = episodeSelect.value;
         console.log(episodeId);
         // Подставляем ID в ссылку на видео
-        const videoUrl = `http://localhost:5001/api/video/${episodeId}`;
+        const videoUrl = `http://193.53.126.242:5001/api/video/${episodeId}`;
         const videoPlayer = document.getElementsByClassName("video-player")[0];
 
         videoPlayer.src = videoUrl;

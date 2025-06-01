@@ -13,7 +13,7 @@ const ResizeRecommends = () => {
     const [cols, setCols] = useState(idList.length);
 
     useEffect(() => {
-        fetch(`http://localhost:5006/api/title/all`)
+        fetch(`http://193.53.126.242:5006/api/title/all`)
             .then(res => res.json())
             .then(setAnimes)
     }, []);
@@ -41,7 +41,7 @@ const ResizeRecommends = () => {
     return (
         <div className="actual-grid-container" ref={containerRef}>
             {animes.slice(0, cols * 2).map((anime) => (
-                <ActualAnime animeInfo={{title: anime.name, imgUrl: `http://localhost:5001/api/img/${anime.seriesId}`, id: anime.seriesId, type : "tv", episodes: 12}} />
+                <ActualAnime animeInfo={{title: anime.name, imgUrl: `http://193.53.126.242:5001/api/img/${anime.seriesId}`, id: anime.seriesId, type : "tv", episodes: 12}} />
             ))}
         </div>
     );

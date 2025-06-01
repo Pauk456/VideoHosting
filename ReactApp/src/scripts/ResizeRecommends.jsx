@@ -12,7 +12,7 @@ const ResizeRecommends = () => {
     const [cols, setCols] = useState(0);
 
     useEffect(() => {
-        fetch(`http://localhost:5004/api/getManyTitles/filter=recommends`)
+        fetch(`http://193.53.126.242:5004/api/getManyTitles/filter=recommends`)
             .then(res => res.json())
             .then(animes=> setAnimes(animes.reccomends));
     }, []);
@@ -40,7 +40,7 @@ const ResizeRecommends = () => {
     return (
         <ul className="recommend-anime-list" ref={containerRef}>
                 {animes.slice(0, cols).map((anime) => (
-                    <RecommendAnime animeInfo={{title: anime.titleName, imgUrl: `http://localhost:5001/api/img/${anime.idTitle}`, id: anime.idTitle}} />
+                    <RecommendAnime animeInfo={{title: anime.titleName, imgUrl: `http://193.53.126.242:5001/api/img/${anime.idTitle}`, id: anime.idTitle}} />
                 ))}
         </ul>
     );

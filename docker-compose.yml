@@ -3,7 +3,7 @@ services:
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 30 --include-restarting
+    command: --interval 30 --include-restarting frontend serverinteraction videoservice titleservice searchservice gatewayservice titlerecommendationservice userservice dbupdater
     restart: unless-stopped
 
   frontend:
@@ -67,7 +67,7 @@ services:
       - ./SearchData.sql:/docker-entrypoint-initdb.d/00-backup.sql
       - pg_search_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "5436:5432"
       
   searchservice:
     image: ghcr.io/pauk456/searchservice:latest

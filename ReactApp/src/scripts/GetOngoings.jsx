@@ -7,7 +7,7 @@ const GetOngoings = () => {
     const [animes, setAnimes] = useState([]);
 
     useEffect(() => {
-        fetch(`http://localhost:5004/api/getManyTitles/filter=recent`)
+        fetch(`http://193.53.126.242:5004/api/getManyTitles/filter=recent`)
             .then(res => res.json()).then(data => {setAnimes(data.recent)})
     }, []);
 
@@ -15,7 +15,7 @@ const GetOngoings = () => {
         const totalEpisodes = anime.seasons?.reduce((sum, season) => sum + (season.episodes?.length || 0), 0);
 
         return (
-                <OngoingElem animeInfo={{title: anime.titleName, imgUrl: `http://localhost:5001/api/img/${anime.idTitle}`, id: anime.idTitle, episodes: totalEpisodes}} />
+                <OngoingElem animeInfo={{title: anime.titleName, imgUrl: `http://193.53.126.242:5001/api/img/${anime.idTitle}`, id: anime.idTitle, episodes: totalEpisodes}} />
         );
     });
 };

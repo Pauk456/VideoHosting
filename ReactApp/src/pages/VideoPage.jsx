@@ -26,11 +26,11 @@ const VideoPage = () => {
 
     useEffect(() => {
         async function fetchAnimeData() {
-            const nameRes = await fetch(`http://localhost:5006/api/title/getAnimeName/${id}`);
+            const nameRes = await fetch(`http://193.53.126.242:5006/api/title/getAnimeName/${id}`);
             const nameJson = await nameRes.json();
-            const seasonsRes = await fetch(`http://localhost:5006/api/title/getSeasonsAndEpisodes/${id}`);
+            const seasonsRes = await fetch(`http://193.53.126.242:5006/api/title/getSeasonsAndEpisodes/${id}`);
             const seasonsJson = await seasonsRes.json();
-            const config = await fetch(`http://localhost:5006/api/title/getConfig/${id}`);
+            const config = await fetch(`http://193.53.126.242:5006/api/title/getConfig/${id}`);
             const configJson = await config.json();
             setAnimeData({
                 name: nameJson?.name || "Атака титанов",
@@ -39,12 +39,12 @@ const VideoPage = () => {
             });
         }
         fetchAnimeData();
-        // fetch(`http://localhost:5006/api/title/getAnimeName/${id}`)
+        // fetch(`http://193.53.126.242:5006/api/title/getAnimeName/${id}`)
         //     .then(res => res.json())
         //     .then(data => {
         //         const name = data.name;
         //         return Promise.all(
-        //             fetch(`http://localhost:5006/api/title/getSeasonsAndEpisodes/${id}`)
+        //             fetch(`http://193.53.126.242:5006/api/title/getSeasonsAndEpisodes/${id}`)
         //                 .then(res => res.json())
         //                 .then(data => ({
         //                     name: name,
@@ -108,7 +108,7 @@ const VideoPage = () => {
            < Header />
             <main>
                 <div className="description-container container">
-                    <img className="poster-img" src={`http://localhost:5001/api/img/${id}`} alt=""/>
+                    <img className="poster-img" src={`http://193.53.126.242:5001/api/img/${id}`} alt=""/>
                     <div className="description">
                         <p className="container-title-text" id="title">{animeData.name}</p>
 

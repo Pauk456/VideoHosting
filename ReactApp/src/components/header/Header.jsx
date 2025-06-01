@@ -10,7 +10,7 @@ const Header = () => {
     const [inputText, setInputText] = useState('')
     const [showRegistration, setShowRegistration] = useState(false);
 
-    // http://localhost:5004/api/titleTag={inputText}&filter=TitleId
+    // http://193.53.126.242:5004/api/titleTag={inputText}&filter=TitleId
     const handleSearchToggle = () => {
         if (searchInputRef.current) {
             if (searchInputRef.current.style.display === 'none') {
@@ -29,7 +29,7 @@ const Header = () => {
 
 
     useEffect(() => {
-        fetch(`http://localhost:5004/api/titleTag=${inputText}&filter=TitleId,TitleName`)
+        fetch(`http://193.53.126.242:5004/api/titleTag=${inputText}&filter=TitleId,TitleName`)
             .then(response => {
                 if (!response.ok) {
                     setDroplist([]);
@@ -39,7 +39,7 @@ const Header = () => {
                 return response.json();
             }).then(data => {
                 setShowDroplist(true);
-                setDroplist([{id: data.id, title: data.name, imgUrl: `http://localhost:5001/api/img/${data.id}`}])
+                setDroplist([{id: data.id, title: data.name, imgUrl: `http://193.53.126.242:5001/api/img/${data.id}`}])
             }
         )
         // Запрос на поиск аниме

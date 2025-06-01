@@ -2,7 +2,7 @@
 
 // function fetchRecommendations() {
     
-//     fetch('http://localhost:5006/api/title/all') // замените на реальный адрес API
+//     fetch('http://193.53.126.242:5006/api/title/all') // замените на реальный адрес API
 //         .then(response => response.json())
 //         .then(data => {
 //             console.log(data);
@@ -18,7 +18,7 @@
 
 //                 li.innerHTML = `
 //                     <a href="./html/video.html?id=${anime.seriesId}">
-//                         <img class="recommend-poster-img" src="http://localhost:5001/api/img/${anime.seriesId}" alt="">
+//                         <img class="recommend-poster-img" src="http://193.53.126.242:5001/api/img/${anime.seriesId}" alt="">
 //                         <p class="recommend-anime-link anime-link">${anime.name}</p>
 //                     </a>
 //                 `;

@@ -88,7 +88,7 @@ const Video = ({seasons, timing}) => {
 
     useEffect(() => {
         if (selectedEpisodeId && videoRef.current) {
-            videoRef.current.src = `http://localhost:5001/api/video/${selectedEpisodeId}`;
+            videoRef.current.src = `http://193.53.126.242:5001/api/video/${selectedEpisodeId}`;
             videoRef.current.load();
         }
     }, [selectedEpisodeId]);
